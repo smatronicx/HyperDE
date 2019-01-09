@@ -20,8 +20,10 @@
 import sys
 if sys.version_info[0] < 3:
     import Tkinter as tk
+    import ScrolledText as tkst
 else:
     import tkinter as tk
+    import tkinter.scrolledtext as tkst
 
 
 class Theme():
@@ -31,7 +33,12 @@ class Theme():
     __instance = None
 
     #Variables
-    bg_color = 'gray'
+    bg_color = 'light grey' #Background colour
+
+    stdout_fg_color = 'sea green' #Font colour for STDOUT
+    stderr_fg_color = 'red' #Font colour for STDERR
+
+    cmd_fg_color = 'blue' #Font colour for console cmd
 
     @staticmethod
     def getInstance():
@@ -53,7 +60,23 @@ class Theme():
 
     def Frame(self, master = None):
         # Frame widget
-        return tk.Frame(master=master, bg=Theme.bg_color)
+        rtn = tk.Frame(master=master, bg=Theme.bg_color)
+        return rtn
+
+    def EntryTransparent(self, master = None):
+        #Transparent entry to match back ground
+        rtn = tk.Entry(master=master, bg=Theme.bg_color, bd=0)
+        return rtn
+
+    def Label(self, master = None):
+        #Transparent entry to match back ground
+        rtn = tk.Label(master=master, bg=Theme.bg_color)
+        return rtn
+
+    def TextTransparent(self, master = None):
+        #Transparent entry to match back ground
+        rtn = tkst.ScrolledText(master=master, bg=Theme.bg_color, bd=0)
+        return rtn
 
 #Create an instace of Theme
 theme_inst = Theme.getInstance()
