@@ -18,14 +18,12 @@
 #
 
 import sys
-if sys.version_info[0] < 3:
-    import Tkinter as tk
-else:
-    import tkinter as tk
+import wx
 
 from code import InteractiveConsole
 from imp import new_module
-from theme import theme_inst as thm
+
+import consolegui as gui
 
 # This class implements the integrated console
 # It is deviced into two parts, one for GUI and other for code execution
@@ -53,31 +51,26 @@ class _Console(InteractiveConsole):
 class _RedirectText(object):
     # This class redirect STD outputs to GUI textbox
 
-    def __init__(self, textbox, bg='white', fg='black', tag='tag'):
+    def __init__(self, textbox, fg='black'):
         # Initialize
         self.output = textbox
-        self.bg = bg
         self.fg = fg
-        self.tag = tag
 
     def write(self, string):
         # Write to textbox
-        self.output["state"] = tk.NORMAL
-        start_idx = self.output.index(tk.END+"-1c")
-        self.output.insert(tk.END, string)
-        end_idx = self.output.index(tk.END+"-1c")
-        #Set text colour
-        self.output.tag_add(self.tag, start_idx, end_idx)
-        self.output.tag_config(self.tag, foreground=self.fg,\
-            background=self.bg)
-        self.output["state"] = tk.DISABLED
-        self.output.see(tk.END)
+        old_style = self.output.GetDefaultStyle()
+        self.output.SetDefaultStyle(wx.TextAttr(self.fg))
+        self.output.AppendText(string)
+        self.output.SetDefaultStyle(old_style)
 
-class Console():
+class Console(gui.TopPanel):
     # This class implements GUI
 
     # Singleton instance
     __instance = None
+    stdout_fg_color = wx.GREEN
+    stderr_fg_color = wx.RED
+    cmd_fg_color = wx.BLUE
 
     @staticmethod
     def getInstance():
@@ -87,7 +80,7 @@ class Console():
             raise ValueError("Console is not initialized")
         return Console.__instance
 
-    def __init__(self, master=None):
+    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
         # Initialize
         if Console.__instance != None:
             raise ValueError("The class ""Console"" is defined\n\
@@ -97,13 +90,13 @@ class Console():
             #Virtual private constructor
             Console.__instance = self
             #Create widgets
-            self._CreateWidgets(master=master)
+            super(Console, self).__init__(parent=parent)
+            # Fix colour
+            Console.stdout_fg_color = wx.ColourDatabase().Find("FOREST GREEN")
 
             #Redirect STDOUT/STDERR to console
-            sys.stdout = _RedirectText(self.out_text, fg=thm.stdout_fg_color,
-                bg=thm.bg_color, tag='stdout')
-            sys.stderr = _RedirectText(self.out_text, fg=thm.stderr_fg_color,
-                bg=thm.bg_color, tag='stderr')
+            sys.stdout = _RedirectText(self.out_text, fg=Console.stdout_fg_color)
+            sys.stderr = _RedirectText(self.out_text, fg=Console.stderr_fg_color)
 
             self.console = _Console() #Console class
             self.cmd_history = [] #Variable to hold command history
@@ -111,45 +104,13 @@ class Console():
 
             self.is_multiline_cmd = 0 # 1 if command is multiple lines
             self.multiline_cmd = "" # Variable to hold multiple lines of command
-
-    def _CreateWidgets(self, master=None):
-        #Create GUI for console
-        #Top frame for console
-        self.topframe = thm.Frame(master=master)
-        self.topframe.pack(fill=tk.BOTH, expand=tk.YES)
-
-        #Output widget
-        self.out_text = thm.TextTransparent(master=self.topframe)
-        self.out_text.pack(fill=tk.BOTH, expand=tk.YES)
-        self.out_text["state"] = tk.DISABLED
-
-        #Input widget
-        self.in_frame = thm.Frame(master=self.topframe)
-        self.in_frame.pack(fill=tk.X, expand=tk.NO)
-        self.in_label = thm.Label(self.in_frame)
-        self.in_label["text"] = ">>>"
-        self.in_label.pack(side=tk.LEFT, fill=tk.NONE, expand=tk.NO)
-
-        self.in_indent = thm.Label(self.in_frame)
-        self.in_indent["text"] = ""
-        self.in_indent.pack(side=tk.LEFT, fill=tk.NONE, expand=tk.NO)
-        self.in_indent_char = "...." # Display character
-        self.in_indent_space = "    " # Actual spaces
-
-        self.in_text = tk.StringVar()
-        self.in_entry = thm.EntryTransparent(master=self.in_frame)
-        self.in_entry["textvariable"] = self.in_text
-        self.in_entry.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES)
-        self.in_entry.bind("<Return>", self._ParseInput)
-        self.in_entry.bind("<Up>", self._ShowPreviousCmd)
-        self.in_entry.bind("<Down>", self._ShowNextCmd)
-        self.in_entry.bind("<Tab>", self._AddTab)
-        self.in_entry.bind("<BackSpace>", self._RemoveTab)
+            self.in_indent_char = "...." # Display character
+            self.in_indent_space = "    " # Actual spaces
 
     def _ParseInput(self, arg=None):
         # Parse the input text and pass it to console
         # Get text from text box
-        t = self.in_text.get()
+        t = self.in_text.GetValue()
 
         if self.cmd_index > len(self.cmd_history)-1:
             # At max index then increament it
@@ -159,15 +120,11 @@ class Console():
         self.cmd_history.append(t)
 
         # Display command in textbox
-        self.out_text["state"] = tk.NORMAL
-        start_idx = self.out_text.index(tk.END+"-1c")
-        self.out_text.insert(tk.END, self.in_indent["text"])
-        self.out_text.insert(tk.END, t+"\n")
-        end_idx = self.out_text.index(tk.END+"-1c")
-        self.out_text.tag_add("cmd", start_idx, end_idx)
-        self.out_text.tag_config("cmd", foreground=thm.cmd_fg_color)
-        self.out_text["state"] = tk.DISABLED
-        self.out_text.see(tk.END)
+        in_tabs = self.in_indent.GetLabelText()
+        in_tabs = in_tabs.replace(self.in_indent_char,
+            self.in_indent_space)
+        self.out_text.SetDefaultStyle(wx.TextAttr(Console.cmd_fg_color))
+        self.out_text.AppendText(in_tabs+t+"\n")
 
         # Handle multiple line command
         t=t.strip()
@@ -183,25 +140,45 @@ class Console():
                 # Run command
                 self.console.runcode(self.multiline_cmd)
                 self.multiline_cmd = ""
-                self.in_indent["text"]  = ""
+                self.in_indent.SetLabelText(wx.EmptyString)
+                self.Layout()
 
             else:
                 # Add command
-                in_tabs = self.in_indent["text"]
-                in_tabs = in_tabs.replace(self.in_indent_char,
-                    self.in_indent_space)
                 self.multiline_cmd += in_tabs
                 self.multiline_cmd += t
                 self.multiline_cmd +='\n'
 
                 if t[-1:] == ":":
                     # Add indent
-                    self.in_indent["text"] += self.in_indent_char
+                    self._AddTab(force=1)
 
         else:
             self.console.runcode(t)
 
-        self.in_text.set("")
+        self.in_text.SetValue(wx.EmptyString)
+
+    def _OnKeyDown(self, event):
+        # Parse the input key and pass it to console
+        # Get the key
+        keycode = event.GetKeyCode()
+        controlDown = event.CmdDown()
+        altDown = event.AltDown()
+        shiftDown = event.ShiftDown()
+
+        # Act based on keys
+        if keycode == wx.WXK_UP:
+            self._ShowPreviousCmd()
+        elif keycode == wx.WXK_DOWN:
+            self._ShowNextCmd()
+        elif keycode == wx.WXK_TAB:
+            if self._AddTab() == 1:
+                return
+        elif keycode == wx.WXK_BACK:
+            if self._RemoveTab() == 1:
+                return
+
+        event.Skip()
 
     def _ShowNextCmd(self, arg=None):
         # Put next command from history
@@ -220,11 +197,11 @@ class Console():
             return
 
         # Set command in entry
-        self.in_text.set(self.cmd_history[self.cmd_index])
-        self.in_entry.icursor(tk.END)
+        self.in_text.SetValue(self.cmd_history[self.cmd_index])
+        self.in_text.SetInsertionPointEnd()
 
     def _ShowPreviousCmd(self, arg=None):
-        # Put next command from history
+        # Put previous command from history
 
         if len(self.cmd_history) == 0:
             # No commands in history
@@ -240,22 +217,28 @@ class Console():
             self.cmd_index = 0
 
         # Set command in entry
-        self.in_text.set(self.cmd_history[self.cmd_index])
-        self.in_entry.icursor(tk.END)
+        self.in_text.SetValue(self.cmd_history[self.cmd_index])
+        self.in_text.SetInsertionPointEnd()
 
-    def _AddTab(self, arg=None):
+    def _AddTab(self, force=0,arg=None):
         # Add tab character in entry
-        if self.in_entry.index(tk.INSERT) == 0:
+        if self.in_text.GetInsertionPoint() == 0:
+            force = 1
+
+        if force == 1:
             # Tab pressed at starting of line
-            self.in_indent["text"] += self.in_indent_char
-            return 'break'
+            t = self.in_indent.GetLabelText()
+            self.in_indent.SetLabelText(t + self.in_indent_char)
+            self.Layout()
+            return 1
 
     def _RemoveTab(self, arg=None):
         # Remove tab character in entry
-        if self.in_entry.index(tk.INSERT) == 0:
+        if self.in_text.GetInsertionPoint() == 0:
             # Backspace pressed at starting of line
-            self.in_indent["text"] = \
-                self.in_indent["text"][:-1*len(self.in_indent_char)]
-            return 'break'
+            t = self.in_indent.GetLabelText()
+            self.in_indent.SetLabelText(t[:-1*len(self.in_indent_char)])
+            self.Layout()
+            return 1
 
 # Methods for top namespace

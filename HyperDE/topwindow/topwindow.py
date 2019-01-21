@@ -18,22 +18,20 @@
 #
 
 import sys
-if sys.version_info[0] < 3:
-    import Tkinter as tk
-else:
-    import tkinter as tk
+import wx
+import topwindowgui as gui
 
 from functools import partial
 
 from theme import theme_inst as thm
-import console as cs
+import console.console as cs
 
 def donothing(tk):
     pass
 
 # This class is used to set main framework for HyperDE
 
-class TopWindow():
+class TopWindow(gui.TopFrame):
     # This class implements main framework
 
     # Singleton instance
@@ -46,7 +44,7 @@ class TopWindow():
             raise ValueError("TopWindow is not initialized")
         return TopWindow.__instance
 
-    def __init__(self, master=None, root=None):
+    def __init__(self, parent=None):
         # Initialize
         if TopWindow.__instance != None:
             raise ValueError("The class ""TopWindow"" is defined\n\
@@ -57,30 +55,20 @@ class TopWindow():
             #Virtual private constructor
             TopWindow.__instance = self
             #Create widgets
-            self._CreateWidgets(master=master, root=root)
+            super(TopWindow, self).__init__(parent=parent)
 
-    def _CreateWidgets(self, master=None, root=None):
-        #Top frame for framework
-        self.topframe = thm.Frame(master=master)
-        self.topframe.pack(fill=tk.BOTH, expand=tk.YES)
+            bSizer5 = wx.BoxSizer( wx.VERTICAL )
+            
+            self.m_panel51 = cs.Console( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+            bSizer5.Add( self.m_panel51, 1, wx.EXPAND |wx.ALL, 5 )
 
-        #Add menus
-        self.menubar = tk.Menu()
-        root.config(menu=self.menubar)
-        self._AddFileMenu()
 
-        c1 = cs.Console(master=self.topframe)
+            self.m_panel1.SetSizer( bSizer5 )
+            self.m_panel1.Layout()
+            bSizer5.Fit( self.m_panel1 )
 
-    def _AddFileMenu(self):
-        #Add file menu
-        self.filemenu = tk.Menu(self.menubar, tearoff=0)
-        self.filemenu.add_command(label="New", command=partial(donothing,tk))
-        self.filemenu.add_command(label="Open", command=donothing)
-        self.filemenu.add_command(label="Save", command=donothing)
-        self.filemenu.add_command(label="Save as...", command=donothing)
-        self.filemenu.add_command(label="Close", command=donothing)
+    def bClick( self, event ):
+        print "Hi from button"
 
-        self.filemenu.add_separator()
-
-        self.filemenu.add_command(label="Exit", command=donothing)
-        self.menubar.add_cascade(label="File", menu=self.filemenu)
+    def test(self):
+        print self.m_panel1

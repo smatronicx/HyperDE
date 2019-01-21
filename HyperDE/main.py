@@ -40,10 +40,14 @@ import waveviewer as wv
 
 #root.mainloop()
 
-import wxpy.wxpy as wxpy
+import topwindow.topwindow as topwin
 import wx as wx
 
+
 app = wx.App(False)
-frame = wxpy.MyFrame1(parent=None)
+#frame = wxpy.MyFrame1(parent=None)
+frame = topwin.TopWindow(parent=None)
+
 frame.Show()
+frame.test()
 app.MainLoop()
