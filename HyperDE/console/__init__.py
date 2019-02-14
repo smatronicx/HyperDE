@@ -16,3 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
+
+from _console import Console
+import helperlib
+
+@helperlib.export
+def exec_console_code(string):
+    
+    Console.getInstance().ExecConsoleCode(string)

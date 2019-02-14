@@ -35,9 +35,10 @@ import wx.xrc
 class TopFrame ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 700,500 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"HyperDE", pos = wx.DefaultPosition, size = wx.Size( 700,500 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.Size( 500,300 ), wx.DefaultSize )
+		self.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
 		self.menubar = wx.MenuBar( 0 )
 		self.filemenu = wx.Menu()
@@ -68,25 +69,16 @@ class TopFrame ( wx.Frame ):
 
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_splitter3 = wx.SplitterWindow( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
-		self.m_splitter3.SetSashGravity( 0.5 )
-		self.m_splitter3.Bind( wx.EVT_IDLE, self.m_splitter3OnIdle )
-		self.m_splitter3.SetMinimumPaneSize( 100 )
+		self.design_splitter = wx.SplitterWindow( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
+		self.design_splitter.SetSashGravity( 0.5 )
+		self.design_splitter.Bind( wx.EVT_IDLE, self.design_splitterOnIdle )
+		self.design_splitter.SetMinimumPaneSize( 100 )
 
-		self.m_panel5 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.m_panel5.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-		self.m_panel5.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+		self.panel_desbuild_wrap = wx.Panel( self.design_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_desbuild_wrap.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+		self.panel_desbuild_wrap.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
-		bSizer8 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_button2 = wx.Button( self.m_panel5, wx.ID_ANY, u"MyButton", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer8.Add( self.m_button2, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-
-		self.m_panel5.SetSizer( bSizer8 )
-		self.m_panel5.Layout()
-		bSizer8.Fit( self.m_panel5 )
-		self.m_panel6 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel6 = wx.Panel( self.design_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_panel6.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
@@ -98,18 +90,18 @@ class TopFrame ( wx.Frame ):
 		self.m_panel6.SetSizer( bSizer9 )
 		self.m_panel6.Layout()
 		bSizer9.Fit( self.m_panel6 )
-		self.m_splitter3.SplitVertically( self.m_panel5, self.m_panel6, 250 )
-		bSizer6.Add( self.m_splitter3, 1, wx.EXPAND, 5 )
+		self.design_splitter.SplitVertically( self.panel_desbuild_wrap, self.m_panel6, 250 )
+		bSizer6.Add( self.design_splitter, 1, wx.EXPAND, 0 )
 
 
 		self.m_panel2.SetSizer( bSizer6 )
 		self.m_panel2.Layout()
 		bSizer6.Fit( self.m_panel2 )
-		self.m_panel1 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.m_panel1.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+		self.panel_console_wrap = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_console_wrap.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
-		self.m_splitter2.SplitHorizontally( self.m_panel2, self.m_panel1, 350 )
-		bsizetop.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
+		self.m_splitter2.SplitHorizontally( self.m_panel2, self.panel_console_wrap, 350 )
+		bsizetop.Add( self.m_splitter2, 1, wx.EXPAND, 0 )
 
 
 		self.SetSizer( bsizetop )
@@ -136,8 +128,8 @@ class TopFrame ( wx.Frame ):
 		self.m_splitter2.SetSashPosition( 350 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 
-	def m_splitter3OnIdle( self, event ):
-		self.m_splitter3.SetSashPosition( 250 )
-		self.m_splitter3.Unbind( wx.EVT_IDLE )
+	def design_splitterOnIdle( self, event ):
+		self.design_splitter.SetSashPosition( 250 )
+		self.design_splitter.Unbind( wx.EVT_IDLE )
 
 

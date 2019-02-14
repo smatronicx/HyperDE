@@ -1,6 +1,6 @@
 #
 # This file is part of HyperDE.
-# Copyright (c) 2018 by Smatronicx.
+# Copyright (c) 2019 by Smatronicx.
 # All Rights Reserved.
 #
 # HyperDE is free software: you can redistribute it and/or modify
@@ -17,5 +17,5 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-from _topwindow import TopWindow
+from design_builder import DesignBuilder
 import helperlib

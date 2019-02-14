@@ -95,8 +95,8 @@ class Console(gui.TopPanel):
             Console.stdout_fg_color = wx.ColourDatabase().Find("FOREST GREEN")
 
             #Redirect STDOUT/STDERR to console
-            sys.stdout = _RedirectText(self.out_text, fg=Console.stdout_fg_color)
-            sys.stderr = _RedirectText(self.out_text, fg=Console.stderr_fg_color)
+            #sys.stdout = _RedirectText(self.out_text, fg=Console.stdout_fg_color)
+            #sys.stderr = _RedirectText(self.out_text, fg=Console.stderr_fg_color)
 
             self.console = _Console() #Console class
             self.cmd_history = [] #Variable to hold command history
@@ -193,7 +193,7 @@ class Console(gui.TopPanel):
 
         if self.cmd_index > max_idx:
             self.cmd_index = max_idx + 1
-            self.in_text.set("")
+            self.in_text.SetValue("")
             return
 
         # Set command in entry
@@ -241,4 +241,6 @@ class Console(gui.TopPanel):
             self.Layout()
             return 1
 
-# Methods for top namespace
+    def ExecConsoleCode(self, string):
+        # Run code in console
+        self.console.runcode(string)
