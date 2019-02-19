@@ -51,10 +51,11 @@ class _Console(InteractiveConsole):
 class _RedirectText(object):
     # This class redirect STD outputs to GUI textbox
 
-    def __init__(self, textbox, fg='black'):
+    def __init__(self, textbox, fg='black', stream=sys.stdout):
         # Initialize
         self.output = textbox
         self.fg = fg
+        self.stream = stream
 
     def write(self, string):
         # Write to textbox
@@ -62,6 +63,9 @@ class _RedirectText(object):
         self.output.SetDefaultStyle(wx.TextAttr(self.fg))
         self.output.AppendText(string)
         self.output.SetDefaultStyle(old_style)
+
+        if True:
+            self.stream.write(string)
 
 class Console(gui.TopPanel):
     # This class implements GUI
@@ -95,8 +99,10 @@ class Console(gui.TopPanel):
             Console.stdout_fg_color = wx.ColourDatabase().Find("FOREST GREEN")
 
             #Redirect STDOUT/STDERR to console
-            #sys.stdout = _RedirectText(self.out_text, fg=Console.stdout_fg_color)
-            #sys.stderr = _RedirectText(self.out_text, fg=Console.stderr_fg_color)
+            sys.stdout = _RedirectText(self.out_text, \
+                fg=Console.stdout_fg_color, stream=sys.stdout)
+            sys.stderr = _RedirectText(self.out_text, \
+                fg=Console.stderr_fg_color, stream=sys.stderr)
 
             self.console = _Console() #Console class
             self.cmd_history = [] #Variable to hold command history

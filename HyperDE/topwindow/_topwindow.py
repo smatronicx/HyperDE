@@ -19,6 +19,7 @@
 
 import sys
 import wx
+import os
 import topwindowgui as gui
 
 from functools import partial
@@ -54,11 +55,10 @@ class TopWindow(gui.TopFrame):
             TopWindow.__instance = self
             #Create widgets
             super(TopWindow, self).__init__(parent=parent)
+            self._CreateIconList()
 
             # Add widgets
             self._AddWidgets(parent=parent)
-
-
 
     def _AddWidgets(self, parent=None):
         # Add widgets to top window
@@ -80,6 +80,38 @@ class TopWindow(gui.TopFrame):
         bsizer_desbuild.Fit( self.panel_desbuild_wrap )
         self.desbuild_sash = dict()
 
+    def _CreateIconList(self):
+        # Create icon list from res path
+        script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+        icon_path = os.path.join(script_path, "res", "icons")
+        self.icon_list = wx.ImageList(16,16)
+        self.icon_idx = dict()
+
+        for icon_file in os.listdir(icon_path):
+            icon_name = os.path.splitext(icon_file)[0]
+            icon_file_full = os.path.join(icon_path, icon_file)
+            icon_bmp = wx.Bitmap(icon_file_full, wx.BITMAP_TYPE_ANY)
+            self.icon_idx[icon_name] = self.icon_list.Add(icon_bmp)
+
+
+    def GetIconBitmap(self, name):
+        # Get bitmap from icon list
+        if self.icon_idx.has_key(name):
+            return self.icon_list.GetBitmap(self.icon_idx[name])
+
+        return None
+
+    def GetIconList(self):
+        # Get the list of icons
+        return self.icon_list
+
+    def GetIconIndex(self, name):
+        # Get icon index from icon list
+        if self.icon_idx.has_key(name):
+            return self.icon_idx.has_key(name)
+
+        return -1
+
     def ShowDesignBuilder(self, show=True, size=16):
         # Show/Hide design builder
         if show == False:
@@ -92,4 +124,3 @@ class TopWindow(gui.TopFrame):
             self.design_splitter.SetSashInvisible(False)
             self.design_splitter.SetMinimumPaneSize(self.desbuild_sash["pane"])
             self.design_splitter.SetSashPosition(self.desbuild_sash["pos"])
-            

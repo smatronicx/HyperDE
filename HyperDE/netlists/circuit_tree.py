@@ -160,13 +160,16 @@ class CktMaster():
         # Get all terminal in this master
         return self.terms
 
-    def GetRoot(self):
-        # Get all root design
-        return self.root()
+    def GetTerminalByName(self, name):
+        # Get terminal by name
+        if self.terms.has_key(name):
+            return self.terms[name]
 
-    def GetNetHierName(self, name):
-        # Get the complete hier
-        pass
+        return None
+
+    def GetRoot(self):
+        # Get root design
+        return self.root()
 
     #def __del__(self):
     #    print "Deleteing master: "+ self.name
@@ -206,6 +209,10 @@ class CktNet():
         # Add terminal connected to net
         self.term = weakref.ref(term)
 
+    def GetTerminal(self):
+        # Get the terminal of this net
+        return self.term
+
     def AddInstance(self, inst):
         # Add instances connected to net
         self.instances.append(inst)
@@ -219,7 +226,7 @@ class CktNet():
 
 class CktInstance():
     # This class holds information of an instance
-    def __init__(self, name, master_name, parent):
+    def __init__(self, name, master_name, parent, icon="subckt"):
         # Initialize
         self.name = name
         self.master_name = master_name
@@ -227,6 +234,7 @@ class CktInstance():
         self.ordered_terms = list()
         self.parent = weakref.ref(parent)
         self.parameters = collections.OrderedDict()
+        self.icon = icon.lower()
 
         # Check if master exists
         master = self.parent().GetMasterByName(master_name)
@@ -270,6 +278,20 @@ class CktInstance():
     def GetName(self):
         # Get the name of the instance
         return self.name
+
+    def GetIcon(self):
+        # Get all root design
+        return self.icon
+
+    def GetNetNameOfTerm(self, name):
+        # Get net connected to term in parent subckt
+        if name in self.master_ordered_terms:
+            idx = self.master_ordered_terms.index(name)
+            net_name = self.ordered_terms[idx]
+            return net_name
+
+        else:
+            return None
 
     #def __del__(self):
     #    print "Deleteing inst: "+ self.name

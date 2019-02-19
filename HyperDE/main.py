@@ -155,11 +155,6 @@ import wx as wx
 
 import sys
 import os.path
-import __builtin__
-
-# Sets the homepath variable (you can change the name) to the directory where your application is located (sys.argv[0]).
-__builtin__.__dict__['homepath'] = os.path.abspath(os.path.dirname(sys.argv[0]))
-print os.path.abspath(os.path.dirname(sys.argv[0]))
 
 #import netlists.readers.read_spectre as n1
 import netlists

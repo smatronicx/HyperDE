@@ -28,6 +28,7 @@
 import wx
 import wx.xrc
 import wx.aui
+import wx.propgrid as pg
 
 ###########################################################################
 ## Class TopPanel
@@ -68,7 +69,7 @@ class TopPanel ( wx.Panel ):
 		self.m_panel7 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 
-		self.design_tree = wx.TreeCtrl( self.m_panel7, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE )
+		self.design_tree = wx.TreeCtrl( self.m_panel7, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE|wx.TR_SINGLE )
 		self.design_tree.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNTEXT ) )
 		self.design_tree.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
@@ -83,9 +84,8 @@ class TopPanel ( wx.Panel ):
 
 		bSizer8 = wx.BoxSizer( wx.VERTICAL )
 
-		m_listBox3Choices = []
-		self.m_listBox3 = wx.ListBox( self.m_panel8, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_listBox3Choices, wx.LB_HSCROLL )
-		bSizer8.Add( self.m_listBox3, 1, wx.ALL|wx.EXPAND, 0 )
+		self.wire_list = wx.ListCtrl( self.m_panel8, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_NO_HEADER|wx.LC_SMALL_ICON )
+		bSizer8.Add( self.wire_list, 1, wx.ALL|wx.EXPAND, 5 )
 
 
 		self.m_panel8.SetSizer( bSizer8 )
@@ -113,6 +113,15 @@ class TopPanel ( wx.Panel ):
 		self.m_panel4.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 		self.m_panel4.SetMinSize( wx.Size( 100,100 ) )
 
+		bSizer14 = wx.BoxSizer( wx.VERTICAL )
+
+		self.design_prop = pg.PropertyGrid(self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.propgrid.PG_BOLD_MODIFIED|wx.propgrid.PG_DEFAULT_STYLE|wx.propgrid.PG_SPLITTER_AUTO_CENTER)
+		bSizer14.Add( self.design_prop, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+		self.m_panel4.SetSizer( bSizer14 )
+		self.m_panel4.Layout()
+		bSizer14.Fit( self.m_panel4 )
 		self.top_splitter.SplitHorizontally( self.m_panel2, self.m_panel4, 0 )
 		bSizer3.Add( self.top_splitter, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0 )
 
@@ -144,8 +153,8 @@ class TopPanel ( wx.Panel ):
 		self.Layout()
 
 		# Connect Events
-		self.design_tree.Bind( wx.EVT_TREE_ITEM_ACTIVATED, self.OnClick )
-		self.design_tree.Bind( wx.EVT_TREE_SEL_CHANGED, self.OnChange )
+		self.design_tree.Bind( wx.EVT_TREE_SEL_CHANGED, self.OnTreeSelChange )
+		self.wire_list.Bind( wx.EVT_LIST_ITEM_SELECTED, self.OnWireSelect )
 		self.bt_hide.Bind( wx.EVT_BUTTON, self.OnShowHideClick )
 		self.bt_show.Bind( wx.EVT_BUTTON, self.OnShowHideClick )
 
@@ -154,10 +163,10 @@ class TopPanel ( wx.Panel ):
 
 
 	# Virtual event handlers, overide them in your derived class
-	def OnClick( self, event ):
+	def OnTreeSelChange( self, event ):
 		event.Skip()
 
-	def OnChange( self, event ):
+	def OnWireSelect( self, event ):
 		event.Skip()
 
 	def OnShowHideClick( self, event ):
