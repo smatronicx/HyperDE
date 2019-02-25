@@ -27,6 +27,7 @@ from functools import partial
 from theme import theme_inst as thm
 import console
 import netlists
+import waveview
 
 # This class is used to set main framework for HyperDE
 
@@ -54,7 +55,7 @@ class TopWindow(gui.TopFrame):
             #Virtual private constructor
             TopWindow.__instance = self
             #Create widgets
-            super(TopWindow, self).__init__(parent=parent)
+            super(TopWindow, self).__init__(parent, id, pos, size, style, name)
             self._CreateIconList()
 
             # Add widgets
@@ -79,6 +80,14 @@ class TopWindow(gui.TopFrame):
         self.panel_desbuild_wrap.Layout()
         bsizer_desbuild.Fit( self.panel_desbuild_wrap )
         self.desbuild_sash = dict()
+
+        # Add wave viewer
+        bsizer_waveview = wx.BoxSizer( wx.VERTICAL )
+        self.waveview_panel = waveview.WaveView( self.panel_waveview_wrap, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+        bsizer_waveview.Add( self.waveview_panel, 1, wx.EXPAND |wx.ALL, 0 )
+        self.panel_waveview_wrap.SetSizer( bsizer_waveview )
+        self.panel_waveview_wrap.Layout()
+        bsizer_waveview.Fit( self.panel_waveview_wrap )
 
     def _CreateIconList(self):
         # Create icon list from res path

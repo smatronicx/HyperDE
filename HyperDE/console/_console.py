@@ -94,7 +94,7 @@ class Console(gui.TopPanel):
             #Virtual private constructor
             Console.__instance = self
             #Create widgets
-            super(Console, self).__init__(parent=parent)
+            super(Console, self).__init__(parent, id, pos, size, style, name)
             # Fix colour
             Console.stdout_fg_color = wx.ColourDatabase().Find("FOREST GREEN")
 

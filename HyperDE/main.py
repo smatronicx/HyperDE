@@ -160,17 +160,27 @@ import os.path
 import netlists
 
 app = wx.App(False)
-#frame = wxpy.MyFrame1(parent=None)
-frame = topwin.TopWindow(parent=None)
+frame = wx.Frame(parent=None)
+#frame = topwin.TopWindow(parent=None)
+import waveview
+
+bsizer_waveview = wx.BoxSizer( wx.VERTICAL )
+waveview_panel = waveview.WaveView( frame, wx.ID_ANY, wx.DefaultPosition, wx.Size(500,300), wx.TAB_TRAVERSAL )
+bsizer_waveview.Add( waveview_panel, 1, wx.EXPAND |wx.ALL, 0 )
+frame.SetSizer( bsizer_waveview )
+frame.Layout()
+bsizer_waveview.Fit( frame )
 
 frame.Show()
 
 #treeCtrl = netlists.DesignBuilder.getInstance().GetTree()
 #rootId = treeCtrl.AddRoot("Root")
 #tree_all_inst(m1,rootId, treeCtrl)
-ckt_root = netlists.DesignBuilder.getInstance().GetCktRoot()
-build_des(ckt_root)
-netlists.DesignBuilder.getInstance().BuildTree()
+
+#ckt_root = netlists.DesignBuilder.getInstance().GetCktRoot()
+#build_des(ckt_root)
+#netlists.DesignBuilder.getInstance().BuildTree()
+
 #treeCtrl.AppendItem(rootId, "Node 1")
 #child2Id = treeCtrl.AppendItem(rootId, "Node 2")
 #treeCtrl.AppendItem(child2Id, "Child of node 2")

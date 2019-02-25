@@ -27,6 +27,7 @@
 
 import wx
 import wx.xrc
+import wx.aui
 
 ###########################################################################
 ## Class TopFrame
@@ -57,7 +58,7 @@ class TopFrame ( wx.Frame ):
 
 		bsizetop = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,-1 ), wx.SP_3D )
+		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,-1 ), wx.SP_3D|wx.SP_3DSASH )
 		self.m_splitter2.SetSashGravity( 0.5 )
 		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
 		self.m_splitter2.SetMinimumPaneSize( 100 )
@@ -83,8 +84,11 @@ class TopFrame ( wx.Frame ):
 
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_button3 = wx.Button( self.m_panel6, wx.ID_ANY, u"MyButton", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer9.Add( self.m_button3, 0, wx.ALL, 5 )
+		self.top_notebook = wx.aui.AuiNotebook( self.m_panel6, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.aui.AUI_NB_SCROLL_BUTTONS|wx.aui.AUI_NB_TOP )
+		self.panel_waveview_wrap = wx.Panel( self.top_notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.top_notebook.AddPage( self.panel_waveview_wrap, u"Waveview", False, wx.NullBitmap )
+
+		bSizer9.Add( self.top_notebook, 1, wx.EXPAND |wx.ALL, 5 )
 
 
 		self.m_panel6.SetSizer( bSizer9 )

@@ -85,7 +85,7 @@ class TopPanel ( wx.Panel ):
 		bSizer8 = wx.BoxSizer( wx.VERTICAL )
 
 		self.wire_list = wx.ListCtrl( self.m_panel8, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_NO_HEADER|wx.LC_SMALL_ICON )
-		bSizer8.Add( self.wire_list, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer8.Add( self.wire_list, 1, wx.ALL|wx.EXPAND, 0 )
 
 
 		self.m_panel8.SetSizer( bSizer8 )

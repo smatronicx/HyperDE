@@ -49,7 +49,7 @@ class DesignBuilder(gui.TopPanel):
             # Virtual private constructor
             DesignBuilder.__instance = self
             #Create widgets
-            super(DesignBuilder, self).__init__(parent=parent)
+            super(DesignBuilder, self).__init__(parent, id, pos, size, style, name)
             # Variables
             self.netlistpath = None
             self.is_hidden = False
