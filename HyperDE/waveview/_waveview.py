@@ -17,12 +17,11 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-import sys
 import wx
 
-import waveviewgui as gui
+from . import waveviewgui as gui
 #import wave_canvas
-import _wavecanvas
+from . waveplot import wavecanvas as wc
 
 # This class implements the waveform viewer
 
@@ -34,13 +33,13 @@ class WaveView(gui.TopPanel):
     @staticmethod
     def getInstance():
         # Static access method
-        if WaveView.__instance == None:
+        if WaveView.__instance is None:
             raise ValueError("WaveView is not initialized")
         return WaveView.__instance
 
-    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
+    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size(500, 300), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
         # Initialize
-        if WaveView.__instance != None:
+        if WaveView.__instance is not None:
             raise ValueError("The class ""WaveView"" is defined\n\
             Use getInstance() method to access the class")
 
@@ -55,13 +54,13 @@ class WaveView(gui.TopPanel):
     def TestFigure3(self, parent):
         import wx.lib.plot
 
-        bsizer = wx.BoxSizer( wx.VERTICAL )
+        bsizer = wx.BoxSizer(wx.VERTICAL)
         #plot_canvas = wave_canvas.AnalogWaveCanvas( parent, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        plot_canvas = _wavecanvas.WaveCanvas( parent, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        bsizer.Add( plot_canvas, 1, wx.EXPAND |wx.ALL, 0 )
-        parent.SetSizer( bsizer )
+        plot_canvas = wc.WaveCanvas(parent, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bsizer.Add(plot_canvas, 1, wx.EXPAND |wx.ALL, 0)
+        parent.SetSizer(bsizer)
         parent.Layout()
-        bsizer.Fit( parent )
+        bsizer.Fit(parent)
 
         #plot_canvas.SetBackgroundColour(wx.BLACK)
         #plot_canvas.axesPen = wx.Pen(wx.WHITE, 1.0, wx.PENSTYLE_SOLID)
@@ -94,6 +93,10 @@ class WaveView(gui.TopPanel):
         line3 = wx.lib.plot.PolyLine(data, colour='red', width=2)
         end = time.time()
         print "Time: ", end - start
+
+        from .waveplot import plotelement as pe
+
+        pe.PlotLine(plot_canvas, [1, 2, 10, 20], [1, 2, 3, 40], colour="red", width=4)
 
         #plot_canvas.enableZoom = True
         #plot_canvas.showScrollbars = False

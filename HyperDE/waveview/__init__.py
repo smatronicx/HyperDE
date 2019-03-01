@@ -17,5 +17,5 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-from _waveview import WaveView
-import helperlib
+from ._waveview import WaveView
+from ..common import helperlib

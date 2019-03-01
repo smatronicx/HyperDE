@@ -23,7 +23,7 @@ import wx
 from code import InteractiveConsole
 from imp import new_module
 
-import consolegui as gui
+from . import consolegui as gui
 
 # This class implements the integrated console
 # It is deviced into two parts, one for GUI and other for code execution
@@ -79,39 +79,39 @@ class Console(gui.TopPanel):
     @staticmethod
     def getInstance():
         # Static access method
-        if Console.__instance == None:
+        if Console.__instance is None:
             #Console()
             raise ValueError("Console is not initialized")
         return Console.__instance
 
-    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
+    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size(500, 300), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
         # Initialize
         if Console.__instance != None:
             raise ValueError("The class ""Console"" is defined\n\
             Use getInstance() method to access the class")
 
         else:
-            #Virtual private constructor
+            # Virtual private constructor
             Console.__instance = self
-            #Create widgets
+            # Create widgets
             super(Console, self).__init__(parent, id, pos, size, style, name)
             # Fix colour
             Console.stdout_fg_color = wx.ColourDatabase().Find("FOREST GREEN")
 
-            #Redirect STDOUT/STDERR to console
-            sys.stdout = _RedirectText(self.out_text, \
+            # Redirect STDOUT/STDERR to console
+            sys.stdout = _RedirectText(self.out_text,
                 fg=Console.stdout_fg_color, stream=sys.stdout)
-            sys.stderr = _RedirectText(self.out_text, \
+            sys.stderr = _RedirectText(self.out_text,
                 fg=Console.stderr_fg_color, stream=sys.stderr)
 
-            self.console = _Console() #Console class
-            self.cmd_history = [] #Variable to hold command history
-            self.cmd_index = -1 # The current index in commmad history
+            self.console = _Console()  # Console class
+            self.cmd_history = []  # Variable to hold command history
+            self.cmd_index = -1  # The current index in commmad history
 
-            self.is_multiline_cmd = 0 # 1 if command is multiple lines
-            self.multiline_cmd = "" # Variable to hold multiple lines of command
-            self.in_indent_char = "...." # Display character
-            self.in_indent_space = "    " # Actual spaces
+            self.is_multiline_cmd = 0  # 1 if command is multiple lines
+            self.multiline_cmd = ""  # Variable to hold multiple lines of command
+            self.in_indent_char = "...."  # Display character
+            self.in_indent_space = "    "  # Actual spaces
 
     def _ParseInput(self, arg=None):
         # Parse the input text and pass it to console
@@ -133,7 +133,7 @@ class Console(gui.TopPanel):
         self.out_text.AppendText(in_tabs+t+"\n")
 
         # Handle multiple line command
-        t=t.strip()
+        t = t.strip()
         if t[-1:] == ":":
             # Got multiple line command
             if self.is_multiline_cmd == 0:
@@ -153,7 +153,7 @@ class Console(gui.TopPanel):
                 # Add command
                 self.multiline_cmd += in_tabs
                 self.multiline_cmd += t
-                self.multiline_cmd +='\n'
+                self.multiline_cmd += '\n'
 
                 if t[-1:] == ":":
                     # Add indent
@@ -226,7 +226,7 @@ class Console(gui.TopPanel):
         self.in_text.SetValue(self.cmd_history[self.cmd_index])
         self.in_text.SetInsertionPointEnd()
 
-    def _AddTab(self, force=0,arg=None):
+    def _AddTab(self, force=0, arg=None):
         # Add tab character in entry
         if self.in_text.GetInsertionPoint() == 0:
             force = 1

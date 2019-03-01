@@ -20,14 +20,14 @@
 import sys
 import wx
 import os
-import topwindowgui as gui
+from . import topwindowgui as gui
 
 from functools import partial
 
-from theme import theme_inst as thm
-import console
-import netlists
-import waveview
+from ..theme import theme_inst as thm
+from .. import console
+from .. import netlists
+from .. import waveview
 
 # This class is used to set main framework for HyperDE
 
@@ -40,18 +40,17 @@ class TopWindow(gui.TopFrame):
     @staticmethod
     def getInstance():
         # Static access method
-        if TopWindow.__instance == None:
+        if TopWindow.__instance is None:
             raise ValueError("TopWindow is not initialized")
         return TopWindow.__instance
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size(700, 500), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL):
         # Initialize
-        if TopWindow.__instance != None:
+        if TopWindow.__instance is not None:
             raise ValueError("The class ""TopWindow"" is defined\n\
             Use getInstance() method to access the class")
 
         else:
-            #Virtual private constructor
             #Virtual private constructor
             TopWindow.__instance = self
             #Create widgets
@@ -65,29 +64,29 @@ class TopWindow(gui.TopFrame):
         # Add widgets to top window
 
         # Add console
-        bsizer_console = wx.BoxSizer( wx.VERTICAL )
-        self.console_panel = console.Console( self.panel_console_wrap, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        bsizer_console.Add( self.console_panel, 1, wx.EXPAND |wx.ALL, 0 )
-        self.panel_console_wrap.SetSizer( bsizer_console )
+        bsizer_console = wx.BoxSizer(wx.VERTICAL)
+        self.console_panel = console.Console(self.panel_console_wrap, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bsizer_console.Add(self.console_panel, 1, wx.EXPAND |wx.ALL, 0)
+        self.panel_console_wrap.SetSizer(bsizer_console)
         self.panel_console_wrap.Layout()
-        bsizer_console.Fit( self.panel_console_wrap )
+        bsizer_console.Fit(self.panel_console_wrap)
 
         # Add design builder
-        bsizer_desbuild = wx.BoxSizer( wx.VERTICAL )
-        self.desbuild_panel = netlists.DesignBuilder( self.panel_desbuild_wrap, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        bsizer_desbuild.Add( self.desbuild_panel, 1, wx.EXPAND |wx.ALL, 0 )
-        self.panel_desbuild_wrap.SetSizer( bsizer_desbuild )
+        bsizer_desbuild = wx.BoxSizer(wx.VERTICAL)
+        self.desbuild_panel = netlists.DesignBuilder(self.panel_desbuild_wrap, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bsizer_desbuild.Add(self.desbuild_panel, 1, wx.EXPAND |wx.ALL, 0)
+        self.panel_desbuild_wrap.SetSizer(bsizer_desbuild)
         self.panel_desbuild_wrap.Layout()
-        bsizer_desbuild.Fit( self.panel_desbuild_wrap )
+        bsizer_desbuild.Fit(self.panel_desbuild_wrap)
         self.desbuild_sash = dict()
 
         # Add wave viewer
-        bsizer_waveview = wx.BoxSizer( wx.VERTICAL )
-        self.waveview_panel = waveview.WaveView( self.panel_waveview_wrap, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        bsizer_waveview.Add( self.waveview_panel, 1, wx.EXPAND |wx.ALL, 0 )
-        self.panel_waveview_wrap.SetSizer( bsizer_waveview )
+        bsizer_waveview = wx.BoxSizer(wx.VERTICAL)
+        self.waveview_panel = waveview.WaveView(self.panel_waveview_wrap, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bsizer_waveview.Add(self.waveview_panel, 1, wx.EXPAND |wx.ALL, 0)
+        self.panel_waveview_wrap.SetSizer(bsizer_waveview)
         self.panel_waveview_wrap.Layout()
-        bsizer_waveview.Fit( self.panel_waveview_wrap )
+        bsizer_waveview.Fit(self.panel_waveview_wrap)
 
     def _CreateIconList(self):
         # Create icon list from res path
@@ -105,7 +104,7 @@ class TopWindow(gui.TopFrame):
 
     def GetIconBitmap(self, name):
         # Get bitmap from icon list
-        if self.icon_idx.has_key(name):
+        if name in self.icon_idx:
             return self.icon_list.GetBitmap(self.icon_idx[name])
 
         return None
@@ -116,14 +115,14 @@ class TopWindow(gui.TopFrame):
 
     def GetIconIndex(self, name):
         # Get icon index from icon list
-        if self.icon_idx.has_key(name):
-            return self.icon_idx.has_key(name)
+        if name in self.icon_idx:
+            return self.icon_idx[name]
 
         return -1
 
     def ShowDesignBuilder(self, show=True, size=16):
         # Show/Hide design builder
-        if show == False:
+        if show is False:
             self.desbuild_sash["pos"] = self.design_splitter.GetSashPosition()
             self.desbuild_sash["pane"] = self.design_splitter.GetMinimumPaneSize()
             self.design_splitter.SetSashInvisible(True)

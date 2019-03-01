@@ -36,7 +36,7 @@ class CktRoot():
 
     def CreateMaster(self, name):
         # Create new master in circuit tree
-        if self.masters.has_key(name):
+        if name in self.masters:
             # Master already exists
             raise Exception("Master " + name + " already exists")
         else:
@@ -46,7 +46,7 @@ class CktRoot():
 
     def GetMasterByName(self, name):
         # Get master by name
-        if self.masters.has_key(name):
+        if name in self.masters:
             return self.masters[name]
         else:
             return None
@@ -87,12 +87,12 @@ class CktMaster():
 
     def AddTerminal(self, name, type):
         # Add port to the master
-        if self.terms.has_key(name):
+        if name in self.terms:
             # Terminal already exists
             raise Exception("Terminal " + name + " already exists")
         else:
             # Find net for terminal
-            if self.nets.has_key(name):
+            if name in self.nets:
                 net = self.nets[name]
             else:
                 net = self.AddNet(name)
@@ -105,7 +105,7 @@ class CktMaster():
 
     def AddInstance(self, name, master):
         # Add instance to the master
-        if self.instances.has_key(name):
+        if name in self.instances:
             # Terminal already exists
             raise Exception("Instance " + name + " already exists")
         else:
@@ -115,7 +115,7 @@ class CktMaster():
 
     def AddNet(self, name):
         # Add instance to the master
-        if self.nets.has_key(name):
+        if name in self.nets:
             # Terminal already exists
             raise Exception("Net  " + name + " already exists")
         else:
@@ -128,14 +128,14 @@ class CktMaster():
 
     def GetNetByName(self, name):
         # Get net by name
-        if self.nets.has_key(name):
+        if name in self.nets:
             return self.nets[name]
         else:
             return None
 
     def GetInstanceByName(self, name):
         # Get instance by name
-        if self.instances.has_key(name):
+        if name in self.instances:
             return self.instances[name]
         else:
             return None
@@ -162,7 +162,7 @@ class CktMaster():
 
     def GetTerminalByName(self, name):
         # Get terminal by name
-        if self.terms.has_key(name):
+        if name in self.terms:
             return self.terms[name]
 
         return None
@@ -238,7 +238,7 @@ class CktInstance():
 
         # Check if master exists
         master = self.parent().GetMasterByName(master_name)
-        if master != None:
+        if master is not None:
             self.AttachMaster(master)
         else:
             # Add to unattached list
@@ -254,7 +254,7 @@ class CktInstance():
         self.ordered_terms.append(name)
         # Add net
         net = self.parent().GetNetByName(name)
-        if net == None:
+        if net is None:
             # Create new net in parent
             net = self.parent().AddNet(name)
 

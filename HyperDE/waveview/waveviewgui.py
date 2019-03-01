@@ -71,8 +71,8 @@ class TopPanel ( wx.Panel ):
 		self.m_scrolledWindow1.SetScrollRate( 5, 5 )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 
-		self.wave_panel1 = wx.Panel( self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer13.Add( self.wave_panel1, 1, wx.ALL|wx.EXPAND, 5 )
+		self.wave_panel1 = wx.Panel( self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,-1 ), wx.TAB_TRAVERSAL )
+		bSizer13.Add( self.wave_panel1, 1, wx.ALL|wx.EXPAND, 0 )
 
 		self.wave_panel2 = wx.Panel( self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.wave_panel2.Hide()
@@ -89,8 +89,20 @@ class TopPanel ( wx.Panel ):
 		self.m_scrolledWindow1.Layout()
 		bSizer13.Fit( self.m_scrolledWindow1 )
 		self.wv_notebook.AddPage( self.m_scrolledWindow1, u"a page", False, wx.NullBitmap )
+		self.m_panel13 = wx.Panel( self.wv_notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel13.SetMinSize( wx.Size( 100,100 ) )
+
+		self.wv_notebook.AddPage( self.m_panel13, u"a page", False, wx.NullBitmap )
 
 		bSizer4.Add( self.wv_notebook, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.pointer_pos = wx.StaticText( self.m_panel2, wx.ID_ANY, u"(0,0)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.pointer_pos.Wrap( -1 )
+
+		self.pointer_pos.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNTEXT ) )
+		self.pointer_pos.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNFACE ) )
+
+		bSizer4.Add( self.pointer_pos, 0, wx.ALL|wx.EXPAND, 0 )
 
 
 		self.m_panel2.SetSizer( bSizer4 )

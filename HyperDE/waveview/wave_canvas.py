@@ -17,7 +17,6 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-import sys
 import wx
 import wx.lib.plot
 
@@ -35,7 +34,7 @@ class _PlotGraphics(wx.lib.plot.PlotGraphics):
 
 class _WaveCanvas(wx.lib.plot.PlotCanvas):
     #This class extends the existing plot library
-    def __init__(self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
+    def __init__(self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size(500, 300), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
         # Initialize
         super(_WaveCanvas, self).__init__(parent, id, pos, size, style, name)
         self.hor_sb = None
@@ -174,7 +173,7 @@ class _WaveCanvas(wx.lib.plot.PlotCanvas):
 
 class AnalogWaveCanvas(wx.Panel):
     # This class implements basic canvas for analog waveform plotting
-    def __init__(self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
+    def __init__(self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size(500, 300), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
         # Initialize
         super(AnalogWaveCanvas, self).__init__(parent, id, pos, size, style, name)
         # Create widgets

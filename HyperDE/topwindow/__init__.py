@@ -17,5 +17,5 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-from _topwindow import TopWindow
-import helperlib
+from ._topwindow import TopWindow
+from ..common import helperlib

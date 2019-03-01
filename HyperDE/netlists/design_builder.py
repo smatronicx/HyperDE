@@ -17,12 +17,10 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-import sys
 import wx
 
-import design_buildergui as gui
-import topwindow
-import circuit_tree
+from . import design_buildergui as gui
+from . import circuit_tree
 
 # This class is used to build design object from netlist for HyperDE
 
@@ -35,17 +33,19 @@ class DesignBuilder(gui.TopPanel):
     @staticmethod
     def getInstance():
         # Static access method
-        if DesignBuilder.__instance == None:
+        if DesignBuilder.__instance is None:
             DesignBuilder()
         return DesignBuilder.__instance
 
-    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
+    def __init__(self, parent=None, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size(500, 300), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
         # Initialize
-        if DesignBuilder.__instance != None:
+        if DesignBuilder.__instance is not None:
             raise ValueError("The class ""DesignBuilder"" is defined\n\
             Use getInstance() method to access the class")
 
         else:
+            # Import top windows
+            from .. import topwindow as topwindow
             # Virtual private constructor
             DesignBuilder.__instance = self
             #Create widgets
@@ -83,7 +83,7 @@ class DesignBuilder(gui.TopPanel):
     def GetIconIndex(self, name):
         # Get icon index from icon map
         name = name.lower()
-        if self.icon_map.has_key(name):
+        if name in self.icon_map:
             icon_name = self.icon_map[name]
             return self.tw.GetIconIndex(icon_name)
 
@@ -91,13 +91,13 @@ class DesignBuilder(gui.TopPanel):
 
     def OnShowHideClick(self, event):
         # Show/Hide the design builder
-        if self.is_hidden == False:
+        if self.is_hidden is False:
             self.bt_show.Show()
             self.bt_hide.Hide()
             self.top_splitter.Hide()
             self.is_hidden = True
             self.bt_panel.Layout()
-            panelw,panelh = self.bt_panel.GetSize()
+            panelw, panelh = self.bt_panel.GetSize()
             self.tw.ShowDesignBuilder(show=False, size=panelw)
 
         else:
@@ -115,7 +115,7 @@ class DesignBuilder(gui.TopPanel):
         # Update nets and props based on selection
         # Clean list box
         self.wire_list.ClearAll()
-        self.wire_list.InsertColumn(0,"name")
+        self.wire_list.InsertColumn(0, "name")
         self.wire_list_map.clear()
 
         # Find tree selection master
@@ -127,7 +127,7 @@ class DesignBuilder(gui.TopPanel):
         else:
             inst = self.design_tree.GetItemData(item)
             master = inst.GetMaster()
-            if master == None:
+            if master is None:
                 return
 
         terms = master.GetAllTerminal()
@@ -135,7 +135,7 @@ class DesignBuilder(gui.TopPanel):
         for term in term_list:
             idx = self.wire_list.GetItemCount()
             term_type = terms[term].GetType()
-            wire_item = self.wire_list.InsertItem(idx, term, \
+            wire_item = self.wire_list.InsertItem(idx, term,
                 self.GetIconIndex(term_type))
 
             self.wire_list_map[wire_item] = terms[term]
@@ -145,7 +145,7 @@ class DesignBuilder(gui.TopPanel):
         net_list = list(sorted(nets.keys()))
         for net in net_list:
             idx = self.wire_list.GetItemCount()
-            wire_item = self.wire_list.InsertItem(idx, net, \
+            wire_item = self.wire_list.InsertItem(idx, net,
                 self.GetIconIndex("net"))
             #self.wire_list.SetItemData(wire_item, nets[net])
             #print wire_item
@@ -154,7 +154,7 @@ class DesignBuilder(gui.TopPanel):
     def BuildTree(self):
         # Build tree for ckt_root
         topinst = self.ckt_root.GetTopInstance()
-        tree_root = self.design_tree.AddRoot(self.ckt_root_name, \
+        tree_root = self.design_tree.AddRoot(self.ckt_root_name,
             self.GetIconIndex("subckt"))
         self._AddTreeNode(tree_root, topinst)
 
@@ -167,12 +167,12 @@ class DesignBuilder(gui.TopPanel):
             inst_icon = insts[inst].GetIcon()
 
             node_name = inst_name + " {"+inst_master_name+"}"
-            childnode = self.design_tree.AppendItem(parent_node,\
-                node_name,self.GetIconIndex(inst_icon))
+            childnode = self.design_tree.AppendItem(parent_node,
+                node_name, self.GetIconIndex(inst_icon))
             self.design_tree.SetItemData(childnode, insts[inst])
 
             inst_master = insts[inst].GetMaster()
-            if inst_master != None:
+            if inst_master is not None:
                 self._AddTreeNode(childnode, inst_master)
 
     def OnWireSelect(self, event):
@@ -204,7 +204,6 @@ class DesignBuilder(gui.TopPanel):
         # Remove last .
         return inst_hier_name[:-1]
 
-
     def GetHierNetName(self, tree_item, net):
         # Get the complete hierarchical net name
         tree_root = self.design_tree.GetRootItem()
@@ -215,7 +214,7 @@ class DesignBuilder(gui.TopPanel):
         # Check if net is terminal
         term = net.GetTerminal()
 
-        if term == None:
+        if term is None:
             # Net belongs to this hierarchy
             inst_hier_name = self.GetHierInstName(tree_item)
             net_name = inst_hier_name + "." + net.GetName()

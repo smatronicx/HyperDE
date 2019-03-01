@@ -17,10 +17,10 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-from _console import Console
-import helperlib
+from ._console import Console
+from ..common import helperlib
 
 @helperlib.export
 def exec_console_code(string):
-    
+
     Console.getInstance().ExecConsoleCode(string)

@@ -44,7 +44,7 @@ if False:
 
 #root.mainloop()
 
-import netlists.circuit_tree as ct
+import HyperDE.netlists.circuit_tree as ct
 
 def build_des(root):
 
@@ -150,19 +150,19 @@ def tree_all_inst(master, rootnode, treeCtrl):
 
 #print n1.GetName()
 
-import topwindow as topwin
+import HyperDE.topwindow as topwin
 import wx as wx
 
 import sys
 import os.path
 
 #import netlists.readers.read_spectre as n1
-import netlists
+import HyperDE.netlists
 
 app = wx.App(False)
 frame = wx.Frame(parent=None)
 #frame = topwin.TopWindow(parent=None)
-import waveview
+import HyperDE.waveview as waveview
 
 bsizer_waveview = wx.BoxSizer( wx.VERTICAL )
 waveview_panel = waveview.WaveView( frame, wx.ID_ANY, wx.DefaultPosition, wx.Size(500,300), wx.TAB_TRAVERSAL )
