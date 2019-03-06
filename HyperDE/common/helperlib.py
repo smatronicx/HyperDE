@@ -18,6 +18,7 @@
 #
 
 import sys
+import math
 
 # This class implements the utility functions
 
@@ -33,3 +34,59 @@ def export(fn):
     else:
         mod.__all__ = [fn.__name__]
     return fn
+
+def frexp10(x):
+    # Return mantissa and exponent (base 10)
+    if x == 0:
+        return 0, 0
+
+    exp = math.floor(math.log10(x))
+    return x/10**exp, exp
+
+def engg_unit(x, precision=3, suffix=True):
+    # Convert floating point to engineering notation
+    # Component suffixes
+    _suffix = ["f", "p", "n", "u", "m", "", "k", "Meg", "G", "T"]
+    # Offset to unit multiplier (no suffix)
+    _no_suffix_offset = _suffix.index("")
+
+    sign = False
+    if x < 0.0:
+        sign = True
+        x = -x
+    if x is math.isinf(x):
+        return x
+    if x == 0:
+        return "0.0"
+    # Normalize the number and round to get significant digits
+    mant, exp = frexp10(x)
+    # Get integer exponent to group by factors of 1000
+    p = int(math.floor(math.log10(x)))
+    p3 = p // 3
+    # Get root value string
+    value = x / math.pow(10.0, 3*p3)
+    value = round(value,precision)
+    # Set sign
+    if sign is True:
+        value = -value
+
+    if suffix:
+        # Append units suffix
+        p3i = p3 + _no_suffix_offset
+        if p3i < 0:
+            value = value*math.pow(10.0, 3*p3i)
+            p3i = 0
+        if p3i >= len(_suffix):
+            value = value*math.pow(10.0, 3*(p3i - len(_suffix)+1))
+            vmant, vexp = frexp10(value)
+            value = str(vmant)+"e+"+str(int(vexp))
+            p3i = len(_suffix) - 1
+        s = _suffix[p3i]
+        return "{}{}".format(value, s)
+    else:
+        # No suffix, return floating point string
+        if p3 != 0:
+            #return "{}e{:precision}".format(value, 3*p3)
+            return "{}e{}".format(value, 3*p3)
+        else:
+            return "{}".format(value)

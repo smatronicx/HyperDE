@@ -27,6 +27,7 @@
 
 import wx
 import wx.xrc
+import wx.dataview
 
 ###########################################################################
 ## Class TopPanel
@@ -39,24 +40,29 @@ class TopPanel ( wx.Panel ):
 
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
-		self.m_splitter2.SetSashGravity( 1 )
-		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
-		self.m_splitter2.SetMinimumPaneSize( 10 )
+		self.waveplot_splitter = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
+		self.waveplot_splitter.SetSashGravity( 0 )
+		self.waveplot_splitter.Bind( wx.EVT_IDLE, self.waveplot_splitterOnIdle )
+		self.waveplot_splitter.SetMinimumPaneSize( 10 )
 
-		self.m_splitter2.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+		self.waveplot_splitter.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
-		self.m_panel7 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer7 = wx.BoxSizer( wx.VERTICAL )
+		self.m_panel7 = wx.Panel( self.waveplot_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer7 = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.signal_list = wx.ListCtrl( self.m_panel7, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,-1 ), wx.LC_SMALL_ICON )
+		bSizer7.Add( self.signal_list, 1, wx.ALL|wx.EXPAND, 0 )
+
+		self.cursor_data = wx.dataview.DataViewListCtrl( self.m_panel7, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_NO_HEADER|wx.dataview.DV_ROW_LINES|wx.dataview.DV_VERT_RULES )
+		self.cursor_data.Hide()
+
+		bSizer7.Add( self.cursor_data, 1, wx.ALL|wx.EXPAND, 0 )
 
 
 		self.m_panel7.SetSizer( bSizer7 )
 		self.m_panel7.Layout()
 		bSizer7.Fit( self.m_panel7 )
-		self.waveplot_panel = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.waveplot_panel.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-		self.waveplot_panel.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_INFOTEXT ) )
-
+		self.waveplot_panel = wx.Panel( self.waveplot_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1 = wx.FlexGridSizer( 3, 4, 0, 0 )
 		fgSizer1.AddGrowableCol( 1 )
 		fgSizer1.AddGrowableRow( 0 )
@@ -64,7 +70,7 @@ class TopPanel ( wx.Panel ):
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
 		self.ycanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.Size( 20,-1 ), wx.TAB_TRAVERSAL )
-		fgSizer1.Add( self.ycanvas, 1, wx.EXPAND |wx.ALL, 5 )
+		fgSizer1.Add( self.ycanvas, 1, wx.EXPAND |wx.ALL, 0 )
 
 		self.wcanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.wcanvas, 1, wx.EXPAND |wx.ALL, 0 )
@@ -103,8 +109,8 @@ class TopPanel ( wx.Panel ):
 		self.waveplot_panel.SetSizer( fgSizer1 )
 		self.waveplot_panel.Layout()
 		fgSizer1.Fit( self.waveplot_panel )
-		self.m_splitter2.SplitVertically( self.m_panel7, self.waveplot_panel, 100 )
-		bSizer3.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
+		self.waveplot_splitter.SplitVertically( self.m_panel7, self.waveplot_panel, 100 )
+		bSizer3.Add( self.waveplot_splitter, 1, wx.EXPAND, 5 )
 
 
 		self.SetSizer( bSizer3 )
@@ -113,8 +119,8 @@ class TopPanel ( wx.Panel ):
 	def __del__( self ):
 		pass
 
-	def m_splitter2OnIdle( self, event ):
-		self.m_splitter2.SetSashPosition( 100 )
-		self.m_splitter2.Unbind( wx.EVT_IDLE )
+	def waveplot_splitterOnIdle( self, event ):
+		self.waveplot_splitter.SetSashPosition( 100 )
+		self.waveplot_splitter.Unbind( wx.EVT_IDLE )
 
 

@@ -43,154 +43,172 @@ if False:
 #cf1.update_width()
 
 #root.mainloop()
+if False:
+    import HyperDE.netlists.circuit_tree as ct
 
-import HyperDE.netlists.circuit_tree as ct
+    def build_des(root):
 
-def build_des(root):
+        m1 = root.GetTopInstance()
+        i1 = m1.AddInstance("Xbuff1", "buffer")
+        t1 = i1.AddTerminal("a_")
+        t1 = i1.AddTerminal("a")
+        i1 = m1.AddInstance("Xbuff2", "buffer")
+        t1 = i1.AddTerminal("b_")
+        t1 = i1.AddTerminal("b")
+        i1 = m1.AddInstance("Xnand1", "nand")
+        t1 = i1.AddTerminal("a")
+        t1 = i1.AddTerminal("b")
+        t1 = i1.AddTerminal("out")
 
-    m1 = root.GetTopInstance()
-    i1 = m1.AddInstance("Xbuff1", "buffer")
-    t1 = i1.AddTerminal("a_")
-    t1 = i1.AddTerminal("a")
-    i1 = m1.AddInstance("Xbuff2", "buffer")
-    t1 = i1.AddTerminal("b_")
-    t1 = i1.AddTerminal("b")
-    i1 = m1.AddInstance("Xnand1", "nand")
-    t1 = i1.AddTerminal("a")
-    t1 = i1.AddTerminal("b")
-    t1 = i1.AddTerminal("out")
+        m1 = root.CreateMaster("buffer")
+        t1 = m1.AddTerminal("in", "input")
+        t1 = m1.AddTerminal("out", "input")
+        i1 = m1.AddInstance("Xinv1", "inverter")
+        t1 = i1.AddTerminal("in")
+        t1 = i1.AddTerminal("mid")
+        i1 = m1.AddInstance("Xinv2", "inverter")
+        t1 = i1.AddTerminal("mid")
+        t1 = i1.AddTerminal("out")
 
-    m1 = root.CreateMaster("buffer")
-    t1 = m1.AddTerminal("in", "input")
-    t1 = m1.AddTerminal("out", "input")
-    i1 = m1.AddInstance("Xinv1", "inverter")
-    t1 = i1.AddTerminal("in")
-    t1 = i1.AddTerminal("mid")
-    i1 = m1.AddInstance("Xinv2", "inverter")
-    t1 = i1.AddTerminal("mid")
-    t1 = i1.AddTerminal("out")
+        m1 = root.CreateMaster("inverter")
+        t1 = m1.AddTerminal("in", "input")
+        t1 = m1.AddTerminal("out", "input")
+        i1 = m1.AddInstance("Mn1", "N")
+        t1 = i1.AddTerminal("out")
+        t1 = i1.AddTerminal("in")
+        t1 = i1.AddTerminal("0")
+        t1 = i1.AddTerminal("0")
+        i1 = m1.AddInstance("Mp1", "P")
+        t1 = i1.AddTerminal("out")
+        t1 = i1.AddTerminal("in")
+        t1 = i1.AddTerminal("vdd")
+        t1 = i1.AddTerminal("vdd")
 
-    m1 = root.CreateMaster("inverter")
-    t1 = m1.AddTerminal("in", "input")
-    t1 = m1.AddTerminal("out", "input")
-    i1 = m1.AddInstance("Mn1", "N")
-    t1 = i1.AddTerminal("out")
-    t1 = i1.AddTerminal("in")
-    t1 = i1.AddTerminal("0")
-    t1 = i1.AddTerminal("0")
-    i1 = m1.AddInstance("Mp1", "P")
-    t1 = i1.AddTerminal("out")
-    t1 = i1.AddTerminal("in")
-    t1 = i1.AddTerminal("vdd")
-    t1 = i1.AddTerminal("vdd")
+    #m1 = root.CreateMaster("inverter")
 
-#m1 = root.CreateMaster("inverter")
+    def print_all_inst(master, indt):
+        # Terms
+        terms = master.GetAllTerminal()
+        term_list = list(sorted(terms.keys()))
+        for term in term_list:
+            print indt + "t:" + term
 
-def print_all_inst(master, indt):
-    # Terms
-    terms = master.GetAllTerminal()
-    term_list = list(sorted(terms.keys()))
-    for term in term_list:
-        print indt + "t:" + term
+        # Nets
+        nets = master.GetAllNets()
+        net_list = list(sorted(nets.keys()))
+        for net in net_list:
+            print indt + "n:" + net
 
-    # Nets
-    nets = master.GetAllNets()
-    net_list = list(sorted(nets.keys()))
-    for net in net_list:
-        print indt + "n:" + net
+        # Inst
+        insts = master.GetAllInstance()
+        for inst in insts:
+            inst_name = insts[inst].GetName()
+            inst_master_name = insts[inst].GetMasterName()
+            print indt + inst_name+ " " + inst_master_name
+            inst_master = insts[inst].GetMaster()
+            if inst_master != None:
+                print_all_inst(inst_master, indt+"  ")
 
-    # Inst
-    insts = master.GetAllInstance()
-    for inst in insts:
-        inst_name = insts[inst].GetName()
-        inst_master_name = insts[inst].GetMasterName()
-        print indt + inst_name+ " " + inst_master_name
-        inst_master = insts[inst].GetMaster()
-        if inst_master != None:
-            print_all_inst(inst_master, indt+"  ")
+    def tree_all_inst(master, rootnode, treeCtrl):
+        # Terms
+        terms = master.GetAllTerminal()
+        term_list = list(sorted(terms.keys()))
+        for term in term_list:
+            #print indt + "t:" + term
+            pass
 
-def tree_all_inst(master, rootnode, treeCtrl):
-    # Terms
-    terms = master.GetAllTerminal()
-    term_list = list(sorted(terms.keys()))
-    for term in term_list:
-        #print indt + "t:" + term
-        pass
+        # Nets
+        nets = master.GetAllNets()
+        net_list = list(sorted(nets.keys()))
+        for net in net_list:
+            #print indt + "n:" + net
+            pass
 
-    # Nets
-    nets = master.GetAllNets()
-    net_list = list(sorted(nets.keys()))
-    for net in net_list:
-        #print indt + "n:" + net
-        pass
+        #master_data = wx.TreeItemData(master)
+        treeCtrl.SetItemData(rootnode, master)
+        # Inst
+        insts = master.GetAllInstance()
+        for inst in insts:
+            inst_name = insts[inst].GetName()
+            inst_master_name = insts[inst].GetMasterName()
 
-    #master_data = wx.TreeItemData(master)
-    treeCtrl.SetItemData(rootnode, master)
-    # Inst
-    insts = master.GetAllInstance()
-    for inst in insts:
-        inst_name = insts[inst].GetName()
-        inst_master_name = insts[inst].GetMasterName()
+            childnode = treeCtrl.AppendItem(rootnode,inst_name+" {"+inst_master_name+"}")
 
-        childnode = treeCtrl.AppendItem(rootnode,inst_name+" {"+inst_master_name+"}")
-
-        #print indt + inst_name+ " " + inst_master_name
-        inst_master = insts[inst].GetMaster()
-        if inst_master != None:
-            tree_all_inst(inst_master, childnode, treeCtrl)
+            #print indt + inst_name+ " " + inst_master_name
+            inst_master = insts[inst].GetMaster()
+            if inst_master != None:
+                tree_all_inst(inst_master, childnode, treeCtrl)
 
 
-#m1 = root.GetTopInstance()
-#print_all_inst(m1,"")
+    #m1 = root.GetTopInstance()
+    #print_all_inst(m1,"")
 
-#i1 = m1.GetInstanceByName("Xbuff1")
-#m2 = i1.GetMaster()
+    #i1 = m1.GetInstanceByName("Xbuff1")
+    #m2 = i1.GetMaster()
 
-#n1 = m2.GetNetByName("mid")
+    #n1 = m2.GetNetByName("mid")
 
-#print n1.GetName()
+    #print n1.GetName()
 
-import HyperDE.topwindow as topwin
-import wx as wx
+if True:
 
-import sys
-import os.path
+    import HyperDE.topwindow as topwin
+    import wx as wx
 
-#import netlists.readers.read_spectre as n1
-import HyperDE.netlists
+    import sys
+    import os.path
 
-app = wx.App(False)
-frame = wx.Frame(parent=None)
-#frame = topwin.TopWindow(parent=None)
-import HyperDE.waveview as waveview
+    #import netlists.readers.read_spectre as n1
+    import HyperDE.netlists
 
-bsizer_waveview = wx.BoxSizer( wx.VERTICAL )
-waveview_panel = waveview.WaveView( frame, wx.ID_ANY, wx.DefaultPosition, wx.Size(500,300), wx.TAB_TRAVERSAL )
-bsizer_waveview.Add( waveview_panel, 1, wx.EXPAND |wx.ALL, 0 )
-frame.SetSizer( bsizer_waveview )
-frame.Layout()
-bsizer_waveview.Fit( frame )
+    app = wx.App(False)
+    frame = wx.Frame(parent=None)
+    #frame = topwin.TopWindow(parent=None)
+    import HyperDE.waveview as waveview
 
-frame.Show()
+    bsizer_waveview = wx.BoxSizer( wx.VERTICAL )
+    waveview_panel = waveview.WaveView( frame, wx.ID_ANY, wx.DefaultPosition, wx.Size(500,300), wx.TAB_TRAVERSAL )
+    bsizer_waveview.Add( waveview_panel, 1, wx.EXPAND |wx.ALL, 0 )
+    frame.SetSizer( bsizer_waveview )
+    frame.Layout()
+    bsizer_waveview.Fit( frame )
 
-#treeCtrl = netlists.DesignBuilder.getInstance().GetTree()
-#rootId = treeCtrl.AddRoot("Root")
-#tree_all_inst(m1,rootId, treeCtrl)
+    frame.Show()
 
-#ckt_root = netlists.DesignBuilder.getInstance().GetCktRoot()
-#build_des(ckt_root)
-#netlists.DesignBuilder.getInstance().BuildTree()
+    #treeCtrl = netlists.DesignBuilder.getInstance().GetTree()
+    #rootId = treeCtrl.AddRoot("Root")
+    #tree_all_inst(m1,rootId, treeCtrl)
 
-#treeCtrl.AppendItem(rootId, "Node 1")
-#child2Id = treeCtrl.AppendItem(rootId, "Node 2")
-#treeCtrl.AppendItem(child2Id, "Child of node 2")
-#treeCtrl.AppendItem(rootId, "Node 3")
+    #ckt_root = netlists.DesignBuilder.getInstance().GetCktRoot()
+    #build_des(ckt_root)
+    #netlists.DesignBuilder.getInstance().BuildTree()
 
-#n1.ReadSpecterNetlist()
+    #treeCtrl.AppendItem(rootId, "Node 1")
+    #child2Id = treeCtrl.AppendItem(rootId, "Node 2")
+    #treeCtrl.AppendItem(child2Id, "Child of node 2")
+    #treeCtrl.AppendItem(rootId, "Node 3")
 
-#with open('../../netlist.scs') as f:
-#    for line in f:
-#        print line
+    #n1.ReadSpecterNetlist()
 
-#treeCtrl.DeleteAllItems()
-app.MainLoop()
+    #with open('../../netlist.scs') as f:
+    #    for line in f:
+    #        print line
+
+    #treeCtrl.DeleteAllItems()
+    app.MainLoop()
+
+if False:
+    import wx
+
+    a = wx.Rect(1,2 ,5,3)
+
+    print a.GetLeft()
+    print a.GetRight()
+    print a.GetTop()
+    print a.GetBottom()
+    print a.GetBottomLeft()
+    print a.GetBottomRight()
+    print a.GetTopLeft()
+    print a.GetTopRight()
+    print a.GetWidth()
+    print a.GetHeight()
