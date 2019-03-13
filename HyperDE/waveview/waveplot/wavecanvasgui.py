@@ -63,11 +63,14 @@ class TopPanel ( wx.Panel ):
 		self.m_panel7.Layout()
 		bSizer7.Fit( self.m_panel7 )
 		self.waveplot_panel = wx.Panel( self.waveplot_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer1 = wx.FlexGridSizer( 3, 4, 0, 0 )
-		fgSizer1.AddGrowableCol( 1 )
+		fgSizer1 = wx.FlexGridSizer( 4, 6, 0, 0 )
+		fgSizer1.AddGrowableCol( 2 )
 		fgSizer1.AddGrowableRow( 0 )
 		fgSizer1.SetFlexibleDirection( wx.BOTH )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.ylcanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.ylcanvas, 1, wx.EXPAND |wx.ALL, 0 )
 
 		self.ycanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.Size( 20,-1 ), wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.ycanvas, 1, wx.EXPAND |wx.ALL, 0 )
@@ -78,17 +81,29 @@ class TopPanel ( wx.Panel ):
 		self.y2canvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.Size( 20,-1 ), wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.y2canvas, 1, wx.EXPAND|wx.ALL, 0 )
 
+		self.y2lcanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.y2lcanvas, 1, wx.EXPAND |wx.ALL, 0 )
+
 		self.sb_ver = wx.ScrollBar( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_VERTICAL )
 		fgSizer1.Add( self.sb_ver, 1, wx.ALL|wx.EXPAND, 0 )
 
-		self.m_panel17 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer1.Add( self.m_panel17, 1, wx.EXPAND |wx.ALL, 0 )
+		self.m_panel30 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel30, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.xycanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.xycanvas, 1, wx.EXPAND |wx.ALL, 0 )
 
 		self.xcanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,20 ), wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.xcanvas, 1, wx.EXPAND |wx.ALL, 0 )
 
-		self.m_panel20 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer1.Add( self.m_panel20, 1, wx.EXPAND |wx.ALL, 0 )
+		self.xy2canvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.xy2canvas, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.m_panel31 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel31, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.m_panel32 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel32, 1, wx.EXPAND |wx.ALL, 0 )
 
 		self.m_panel23 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.m_panel23, 1, wx.EXPAND |wx.ALL, 0 )
@@ -96,14 +111,35 @@ class TopPanel ( wx.Panel ):
 		self.m_panel24 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.m_panel24, 1, wx.EXPAND |wx.ALL, 0 )
 
+		self.xlcanvas = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.xlcanvas, 1, wx.EXPAND |wx.ALL, 5 )
+
+		self.m_panel34 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel34, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.m_panel35 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel35, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.m_panel36 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel36, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.m_panel37 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel37, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.m_panel38 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel38, 1, wx.EXPAND |wx.ALL, 0 )
+
 		self.sb_hor = wx.ScrollBar( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_HORIZONTAL )
 		fgSizer1.Add( self.sb_hor, 0, wx.ALL|wx.EXPAND, 0 )
 
 		self.m_panel22 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.m_panel22, 1, wx.EXPAND |wx.ALL, 0 )
 
-		self.m_panel21 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer1.Add( self.m_panel21, 1, wx.EXPAND |wx.ALL, 0 )
+		self.m_panel39 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel39, 1, wx.EXPAND |wx.ALL, 0 )
+
+		self.m_panel40 = wx.Panel( self.waveplot_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer1.Add( self.m_panel40, 1, wx.EXPAND |wx.ALL, 0 )
 
 
 		self.waveplot_panel.SetSizer( fgSizer1 )

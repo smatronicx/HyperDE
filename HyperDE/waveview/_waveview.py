@@ -96,7 +96,8 @@ class WaveView(gui.TopPanel):
 
         from .waveplot import plotelement as pe
 
-        pe.PlotLine(plot_canvas, [1, 2, 10, 20], [1, 2, 3, 40], colour="red", width=4)
+        pe.PlotLine(plot_canvas, [1, 2, 10, 20], [1, 2, 3, 400], colour="red", width=2)
+        pe.PlotLine(plot_canvas, [1, 2, 3, 10, 20, 30], [1, 4, 9, 100, 400, 900], colour="yellow", width=2)
 
         #plot_canvas.enableZoom = True
         #plot_canvas.showScrollbars = False

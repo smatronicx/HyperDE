@@ -23,6 +23,7 @@ import wx.adv
 import random
 import copy
 import math
+from functools import partial
 from . import wavecanvasgui as gui
 from ...common import helperlib
 
@@ -37,7 +38,12 @@ class WaveCanvas(gui.TopPanel):
         self.pdcs["wcanvas"] = wx.adv.PseudoDC()
         self.pdcs["xcanvas"] = wx.adv.PseudoDC()
         self.pdcs["ycanvas"] = wx.adv.PseudoDC()
+        self.pdcs["xycanvas"] = wx.adv.PseudoDC()
         self.pdcs["y2canvas"] = wx.adv.PseudoDC()
+        self.pdcs["xy2canvas"] = wx.adv.PseudoDC()
+        self.pdcs["xlcanvas"] = wx.adv.PseudoDC()
+        self.pdcs["ylcanvas"] = wx.adv.PseudoDC()
+        self.pdcs["y2lcanvas"] = wx.adv.PseudoDC()
 
         # Pens
         self.pointsize = 1.0
@@ -56,23 +62,33 @@ class WaveCanvas(gui.TopPanel):
         self.canvases["wcanvas"] = self.wcanvas
         self.canvases["xcanvas"] = self.xcanvas
         self.canvases["ycanvas"] = self.ycanvas
+        self.canvases["xycanvas"] = self.xycanvas
         self.canvases["y2canvas"] = self.y2canvas
+        self.canvases["xy2canvas"] = self.xy2canvas
+        self.canvases["xlcanvas"] = self.xlcanvas
+        self.canvases["ylcanvas"] = self.ylcanvas
+        self.canvases["y2lcanvas"] = self.y2lcanvas
 
         self.buffers = dict()
 
         # Window event
-        self.wcanvas.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.xcanvas.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.ycanvas.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.y2canvas.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.wcanvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="wcanvas"))
+        self.xcanvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="xcanvas"))
+        self.ycanvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="ycanvas"))
+        self.xycanvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="xycanvas"))
+        self.y2canvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="y2canvas"))
+        self.xy2canvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="xy2canvas"))
+        self.xlcanvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="xlcanvas"))
+        self.ylcanvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="ylcanvas"))
+        self.y2lcanvas.Bind(wx.EVT_PAINT, partial(self.OnPaint, canvas="y2lcanvas"))
 
         self.wcanvas.Bind(wx.EVT_SIZE, self.OnSize)
 
         # Axes
         self.axis_limits = dict()
         self.axis_limits["xaxis"] = [0, 1]
-        self.axis_limits["yaxis"] = [123.123e-06, 123.123e-5]
-        self.axis_limits["y2axis"] = [234.345e-9, 123.123e-8]
+        self.axis_limits["yaxis"] = [0, 1]
+        self.axis_limits["y2axis"] = [0, 1]
         self.axis_range = copy.deepcopy(self.axis_limits)
 
         self.axis_bbox = wx.Rect(0, 0, 1, 1)
@@ -86,6 +102,11 @@ class WaveCanvas(gui.TopPanel):
         self.axis_label_show["xaxis"] = True
         self.axis_label_show["yaxis"] = True
         self.axis_label_show["y2axis"] = True
+
+        self.axis_title_show = dict()
+        self.axis_title_show["xaxis"] = True
+        self.axis_title_show["yaxis"] = True
+        self.axis_title_show["y2axis"] = True
 
         self.axis_ref_label = 123.123123e-12
 
@@ -165,116 +186,48 @@ class WaveCanvas(gui.TopPanel):
             dc.Clear()
             self.pdcs[cv].DrawToDC(dc)
 
-    def Clear1(self):
-        # Clear canvas
-        dc = wx.ClientDC(self.wcanvas)
-        dc = wx.BufferedDC(dc, self.buffers["wcanvas"])
-        bg = wx.Brush(self.waveplot_splitter.GetBackgroundColour(), wx.SOLID)
-        dc.SetBackground(bg)
-        dc.SetBackgroundMode(wx.SOLID)
-        dc.Clear()
-
-        dc.SetTextForeground(self.waveplot_splitter.GetForegroundColour())
-        dc.SetTextBackground(self.waveplot_splitter.GetBackgroundColour())
-
-        # draw to the dc
-        self.DrawBox(dc)
-        #print self.pdc.FindObjects(1,1,2)
-        #self.pdc.DrawToDCClipped(dc,r)
-
-        size = self.wcanvas.GetClientSize()
-        offset = (-1*size.width, size.height) #(10,size.height-10)
-        scale_x = 1*2*(size.width-20.0)/20.0
-        scale_y = -1*2*(size.height-20.0)/40.0
-        scale = [scale_x, scale_y]
-
-        for idx in self.on_draw_cb:
-            self.on_draw_cb[idx](scale, offset)
-
-        dc.SetClippingRegion(10,10,size.width-10,size.height-10)
-        #self.pdc.DrawToDCClipped(dc, wx.Rect(10,10, 10, 10))
-        self.wpdc.DrawToDC(dc)
-        dc.DestroyClippingRegion()
-        #self.pdc.DrawToDC(dc)
-
-        dc = wx.ClientDC(self.xcanvas)
-        dc = wx.BufferedDC(dc, self.buffers["xcanvas"])
-        bg = wx.Brush(wx.Colour("red"), wx.SOLID)
-        dc.SetBackground(bg)
-        dc.SetBackgroundMode(wx.SOLID)
-        dc.Clear()
-
-    def OnPaint(self, event):
+    def OnPaint(self, event, canvas=None):
         # On paint, redraw graphics
-        for cv in self.canvases:
-            dc = wx.BufferedPaintDC(self.canvases[cv], self.buffers[cv])
+        canvas=None
+        if canvas is None:
+            for cv in self.canvases:
+                dc = wx.BufferedPaintDC(self.canvases[cv], self.buffers[cv])
 
-    def AddElement(self, element):
+        else:
+            dc = wx.BufferedPaintDC(self.canvases[canvas], self.buffers[canvas])
+
+    def AddElement(self, element, xlimits, ylimits):
         # Return id of new element
         id = wx.NewId()
+        self.SetNewLimits("xaxis", xlimits)
+        self.SetNewLimits("yaxis", ylimits)
         self.elements[id] = element
         return id
 
-    def BindDraw(self, id, func):
-        # Bind draw callback
-        self.on_draw_cb[id] = func
+    def SetNewLimits(self, axis, limits):
+        # Set new limits for axis
+        cur_limits = self.axis_limits[axis]
+        cur_limits[0] = min(cur_limits[0], limits[0])
+        cur_limits[1] = max(cur_limits[1], limits[1])
+        self.axis_limits[axis] = cur_limits
+        self.axis_range[axis] = cur_limits
 
-    def GetPseudoDC(self):
+    def GetWaveDC(self):
         # Return PseudoDC
         return self.pdcs["wcanvas"]
 
     def Draw(self):
         # Draw items on canvas
+        self.SetAxisPDC(self.pdcs["xycanvas"])
+        self.SetAxisPDC(self.pdcs["xy2canvas"])
         self.DrawXAxis()
         self.DrawYAxis()
         self.DrawY2Axis()
+        self.DrawGrid()
+        self.DrawElements()
 
-        pdc = self.pdcs["wcanvas"]
-        pdc.RemoveId(self.grid_id)
-        pdc.SetId(self.grid_id)
-        fg = self.waveplot_splitter.GetForegroundColour()
-        bg = self.waveplot_splitter.GetBackgroundColour()
-        pdc.SetTextForeground(fg)
-        pdc.SetTextBackground(bg)
-
-        #width, height = self.canvases["wcanvas"].GetClientSize()
-        x0 = self.axis_bbox.GetLeft()
-        x1 = self.axis_bbox.GetRight()
-        y0 = self.axis_bbox.GetTop()
-        y1 = self.axis_bbox.GetBottom()
-
-        pdc.SetPen(self.pen["grid_minor"])
-
-        for x in self.grid_xminor_points:
-            # Draw major axis
-            pdc.DrawLine(x ,y0, x, y1)
-
-            for y in self.grid_yminor_points:
-                # Draw major axis
-                pdc.DrawLine(x0 ,y, x1, y)
-
-        pdc.SetPen(self.pen["grid_major"])
-
-        for x in self.grid_xmajor_points:
-            # Draw major axis
-            pdc.DrawLine(x ,y0, x, y1)
-
-        for y in self.grid_ymajor_points:
-            # Draw major axis
-            pdc.DrawLine(x0 ,y, x1, y)
-
-    def DrawXAxis(self):
-        # Draw X axis
-        if self.axis_show["xaxis"] is True:
-            height = self.GetXAxisHeight()
-        else:
-            height = 0
-
-        self.canvases["xcanvas"].SetMinSize(wx.Size(-1,height))
-        width, height = self.canvases["xcanvas"].GetClientSize()
-
-        # Clear xcanvas
-        pdc = self.pdcs["xcanvas"]
+    def SetAxisPDC(self, pdc):
+        # Set the options for axis PDC
         pdc.RemoveAll()
         pdc.SetId(wx.NewId())
         pdc.SetPen(self.pen["axes"])
@@ -282,6 +235,23 @@ class WaveCanvas(gui.TopPanel):
         bg = self.waveplot_splitter.GetBackgroundColour()
         pdc.SetTextForeground(fg)
         pdc.SetTextBackground(bg)
+        self.SetTextSize(self.axis_font, pdc)
+
+    def DrawXAxis(self):
+        # Draw X axis
+        if self.axis_show["xaxis"] is True:
+            height = self.GetXAxisHeight()
+        else:
+            y = self.axis_ref_label
+            lyw, lyh = self.GetAxisLabelSize(y)
+            height = lyh/2
+
+        self.canvases["xcanvas"].SetMinSize(wx.Size(-1,height))
+        width, height = self.canvases["xcanvas"].GetClientSize()
+
+        # Clear xcanvas
+        pdc = self.pdcs["xcanvas"]
+        self.SetAxisPDC(pdc)
         del self.grid_xmajor_points[:]
         del self.grid_xminor_points[:]
 
@@ -293,9 +263,9 @@ class WaveCanvas(gui.TopPanel):
         lx0w, lx0h = self.GetAxisLabelSize(x0)
         lx1w, lx1h = self.GetAxisLabelSize(x1)
 
-        xstart = self.grid_margin + lx0w/2 # margin on either side
+        xstart = self.grid_margin # margin on either side
         ystart = 1
-        xend = width - self.grid_margin - lx1w/2
+        xend = width - self.grid_margin
         ngrid = math.floor(1.0*(xend - xstart)/lrw)
         ngrid = min(ngrid, self.grid_max_points)
         ngrid = max(self.grid_min_points, ngrid)
@@ -309,7 +279,6 @@ class WaveCanvas(gui.TopPanel):
         minor_step = minor_step * xscale
 
         pdc.DrawLine(xstart, ystart, xend, ystart)
-        self.SetTextSize(10, pdc)
         for xlabel in xlabels:
             # Draw major axis
             x = xscale*(xlabel[0] - x0) + xstart
@@ -331,7 +300,8 @@ class WaveCanvas(gui.TopPanel):
                 pdc.DrawLine(x ,ystart, x, ystart+self.axis_minor_tick_len)
                 self.grid_xminor_points.append(x)
 
-        if self.axis_label_show["xaxis"] is True:
+        show_label = self.axis_label_show["xaxis"] and self.axis_show["xaxis"]
+        if show_label is True:
             # Show labels
             for xlabel in xlabels:
                 x = xscale*(xlabel[0] - x0) + xstart
@@ -339,28 +309,58 @@ class WaveCanvas(gui.TopPanel):
                 xl = x - s.width/2
                 pdc.DrawText(xlabel[1], xl, ystart+self.axis_major_tick_len + 2)
 
+            # Hack to fix clipped labels
+            # Left of axis
+            pdc = self.pdcs["xycanvas"]
+
+            s = self.GetTextDisplaySize(xlabels[0][1], self.axis_font)
+            x = xscale*(xlabels[0][0] - x0) + xstart
+            xl = x - s.width/2
+            if xl < 0:
+                widthxy, heightxy = self.canvases["xycanvas"].GetClientSize()
+                x = x - xstart + widthxy + self.grid_margin
+                xl = x - s.width/2
+                pdc.DrawText(xlabels[0][1], xl, ystart+self.axis_major_tick_len + 2)
+
+            # Right of axis
+            pdc = self.pdcs["xy2canvas"]
+            self.SetAxisPDC(pdc)
+
+            s = self.GetTextDisplaySize(xlabels[-1][1], self.axis_font)
+            x = xscale*(xlabels[-1][0] - x0) + xstart
+            xl = x + s.width/2
+            if xl > width:
+                x = - self.grid_margin
+                xl = x - s.width/2
+                pdc.DrawText(xlabels[-1][1], xl, ystart+self.axis_major_tick_len + 2)
+
+        show_title = self.axis_title_show["xaxis"] and self.axis_show["xaxis"]
+        if show_title is True:
+            # x axis title
+            pdc = self.pdcs["xlcanvas"]
+            self.SetAxisPDC(pdc)
+            s = self.GetTextDisplaySize("xtitle", self.axis_font)
+            self.canvases["xlcanvas"].SetMinSize(wx.Size(-1, s.height+2))
+            widthxl, heightxl = self.canvases["xlcanvas"].GetClientSize()
+            x = widthxl/2 - s.width/2
+            y = 0
+            pdc.DrawText("xtitle", x, y)
 
     def DrawYAxis(self):
         # Draw Y axes
         if self.axis_show["yaxis"] is True:
             width = self.GetYAxisWidth()
         else:
-            x0 = self.axis_range["xaxis"][0]
-            lx0w, lx0h = self.GetAxisLabelSize(x0)
-            width = lx0w/2
+            x = self.axis_range["xaxis"][0]
+            lxw, lxh = self.GetAxisLabelSize(x)
+            width = lxw/2
 
         self.canvases["ycanvas"].SetMinSize(wx.Size(width, -1))
         width, height = self.canvases["ycanvas"].GetClientSize()
 
         # Clear xcanvas
         pdc = self.pdcs["ycanvas"]
-        pdc.RemoveAll()
-        pdc.SetId(wx.NewId())
-        pdc.SetPen(self.pen["axes"])
-        fg = self.waveplot_splitter.GetForegroundColour()
-        bg = self.waveplot_splitter.GetBackgroundColour()
-        pdc.SetTextForeground(fg)
-        pdc.SetTextBackground(bg)
+        self.SetAxisPDC(pdc)
         del self.grid_ymajor_points[:]
         del self.grid_yminor_points[:]
 
@@ -374,7 +374,7 @@ class WaveCanvas(gui.TopPanel):
 
         xstart = width - 1
         ystart = self.grid_margin + ly1h/2 # margin on either side
-        yend = height - self.grid_margin - ly0h/2
+        yend = height - self.grid_margin
         ngrid = math.floor(1.0*(yend - ystart)/self.grid_min_pixel)
         ngrid = min(ngrid, self.grid_max_points)
         ngrid = max(self.grid_min_points, ngrid)
@@ -388,7 +388,7 @@ class WaveCanvas(gui.TopPanel):
         minor_step = minor_step * yscale
 
         pdc.DrawLine(xstart, ystart, xstart, yend)
-        self.SetTextSize(10, pdc)
+        self.SetTextSize(self.axis_font, pdc)
         for ylabel in ylabels:
             # Draw major axis
             y = yscale*(ylabel[0] - y0) + yend
@@ -402,7 +402,7 @@ class WaveCanvas(gui.TopPanel):
                     pdc.DrawLine(xstart, y, xstart-self.axis_minor_tick_len, y)
                     self.grid_yminor_points.append(y)
 
-        # Draw missin minor axis from start
+        # Draw missing minor axis from start
         y = yscale*(ylabels[0][0] - y0) + yend
         for i in range(0, self.axis_minor_tick_count):
             y = y - minor_step
@@ -410,13 +410,44 @@ class WaveCanvas(gui.TopPanel):
                 pdc.DrawLine(xstart, y, xstart-self.axis_minor_tick_len, y)
                 self.grid_yminor_points.append(y)
 
-        if self.axis_label_show["yaxis"] is True:
+        show_label = self.axis_label_show["yaxis"] and self.axis_show["yaxis"]
+        label_width = 0
+        if show_label is True:
             # Show labels
             for ylabel in ylabels:
                 y = yscale*(ylabel[0] - y0) + yend
                 s = self.GetTextDisplaySize(ylabel[1], self.axis_font)
                 yl = y - s.height/2
                 pdc.DrawText(ylabel[1],xstart - self.axis_major_tick_len - 2 - s.width, yl)
+                label_width = max(label_width, s.width)
+
+            # Hack to fix clipped labels
+            # Bottom of axis
+            pdc = self.pdcs["xycanvas"]
+
+            s = self.GetTextDisplaySize(ylabels[0][1], self.axis_font)
+            y = yscale*(ylabels[0][0] - y0) + yend
+            yl = y + s.height/2
+            if yl > height:
+                y = - self.grid_margin
+                yl = y - s.height/2
+                pdc.DrawText(ylabels[0][1], xstart - self.axis_major_tick_len - 2 - s.width, yl)
+
+        # Fix width
+        width = self.GetYAxisWidth(width = label_width)
+        self.canvases["ycanvas"].SetMinSize(wx.Size(width, -1))
+
+        show_title = self.axis_title_show["yaxis"] and self.axis_show["yaxis"]
+        if show_title is True:
+            # y axis title
+            pdc = self.pdcs["ylcanvas"]
+            self.SetAxisPDC(pdc)
+            s = self.GetTextDisplaySize("ytitle", self.axis_font)
+            self.canvases["ylcanvas"].SetMinSize(wx.Size(s.height+2,-1))
+            widthxl, heightxl = self.canvases["ylcanvas"].GetClientSize()
+            x = widthxl/2 - s.height/2
+            y = heightxl/2 + s.width/2
+            pdc.DrawRotatedText("ytitle", x, y, 90)
 
 
     def DrawY2Axis(self):
@@ -424,20 +455,16 @@ class WaveCanvas(gui.TopPanel):
         if self.axis_show["y2axis"] is True:
             width = self.GetYAxisWidth()
         else:
-            width = 0
+            x = self.axis_range["xaxis"][1]
+            lxw, lxh = self.GetAxisLabelSize(x)
+            width = lxw/2
 
         self.canvases["y2canvas"].SetMinSize(wx.Size(width, -1))
         width, height = self.canvases["y2canvas"].GetClientSize()
 
         # Clear xcanvas
         pdc = self.pdcs["y2canvas"]
-        pdc.RemoveAll()
-        pdc.SetId(wx.NewId())
-        pdc.SetPen(self.pen["axes"])
-        fg = self.waveplot_splitter.GetForegroundColour()
-        bg = self.waveplot_splitter.GetBackgroundColour()
-        pdc.SetTextForeground(fg)
-        pdc.SetTextBackground(bg)
+        self.SetAxisPDC(pdc)
 
         # Get major grid line
         y0 = self.axis_range["y2axis"][0]
@@ -449,7 +476,7 @@ class WaveCanvas(gui.TopPanel):
 
         xstart = 1
         ystart = self.grid_margin + ly0h/2 # margin on either side
-        yend = height - self.grid_margin - ly1h/2
+        yend = height - self.grid_margin
         ngrid = math.floor(1.0*(yend - ystart)/self.grid_min_pixel)
         ngrid = min(ngrid, self.grid_max_points)
         ngrid = max(self.grid_min_points, ngrid)
@@ -461,7 +488,7 @@ class WaveCanvas(gui.TopPanel):
         minor_step = minor_step * yscale
 
         pdc.DrawLine(xstart, ystart, xstart, yend)
-        self.SetTextSize(10, pdc)
+        self.SetTextSize(self.axis_font, pdc)
         for ylabel in ylabels:
             # Draw major axis
             y = yscale*(ylabel[0] - y0) + yend
@@ -480,13 +507,44 @@ class WaveCanvas(gui.TopPanel):
             if y < yend:
                 pdc.DrawLine(xstart, y, xstart + self.axis_minor_tick_len, y)
 
-        if self.axis_label_show["y2axis"] is True:
+        show_label = self.axis_label_show["y2axis"] and self.axis_show["y2axis"]
+        label_width = 0
+        if show_label is True:
             # Show labels
             for ylabel in ylabels:
                 y = yscale*(ylabel[0] - y0) + yend
                 s = self.GetTextDisplaySize(ylabel[1], self.axis_font)
                 yl = y - s.height/2
                 pdc.DrawText(ylabel[1],xstart + self.axis_major_tick_len + 2, yl)
+                label_width = max(label_width, s.width)
+
+            # Hack to fix clipped labels
+            # Bottom of axis
+            pdc = self.pdcs["xy2canvas"]
+
+            s = self.GetTextDisplaySize(ylabels[0][1], self.axis_font)
+            y = yscale*(ylabels[0][0] - y0) + yend
+            yl = y + s.height/2
+            if yl > height:
+                y = - self.grid_margin
+                yl = y - s.height/2
+                pdc.DrawText(ylabels[0][1], xstart + self.axis_major_tick_len + 2, yl)
+
+        # Fix width
+        width = self.GetYAxisWidth(width = label_width)
+        self.canvases["y2canvas"].SetMinSize(wx.Size(width, -1))
+
+        show_title = self.axis_title_show["y2axis"] and self.axis_show["y2axis"]
+        if show_title is True:
+            # y axis title
+            pdc = self.pdcs["y2lcanvas"]
+            self.SetAxisPDC(pdc)
+            s = self.GetTextDisplaySize("y2title", self.axis_font)
+            self.canvases["y2lcanvas"].SetMinSize(wx.Size(s.height+2,-1))
+            widthxl, heightxl = self.canvases["y2lcanvas"].GetClientSize()
+            x = widthxl/2 - s.height/2
+            y = heightxl/2 + s.width/2
+            pdc.DrawRotatedText("y2title", x, y, 90)
 
 
     def SetTextSize(self, size, dc):
@@ -523,12 +581,70 @@ class WaveCanvas(gui.TopPanel):
         s.height = s.height + self.axis_major_tick_len + 5 # 4 Pixel padding
         return s.height
 
-    def GetYAxisWidth(self):
+    def GetYAxisWidth(self, y0=None, width=None):
         # Get height for xcanvas
-        y0 = self.axis_ref_label
+        if y0 is None:
+            y0 = self.axis_ref_label
         s = self.GetAxisLabelSize(y0)
+        if width is not None:
+            s.width = width
         s.width = s.width + self.axis_major_tick_len + 5 # 4 Pixel padding
         return s.width
+
+    def DrawGrid(self):
+        # Draw grid on canvas
+        pdc = self.pdcs["wcanvas"]
+        pdc.RemoveId(self.grid_id)
+        pdc.SetId(self.grid_id)
+        fg = self.waveplot_splitter.GetForegroundColour()
+        bg = self.waveplot_splitter.GetBackgroundColour()
+        pdc.SetTextForeground(fg)
+        pdc.SetTextBackground(bg)
+
+        x0 = self.axis_bbox.GetLeft()
+        x1 = self.axis_bbox.GetRight()
+        y0 = self.axis_bbox.GetTop()
+        y1 = self.axis_bbox.GetBottom()
+
+        pdc.SetPen(self.pen["grid_minor"])
+
+        show_minor = self.grid_show and self.grid_show_minor
+        if show_minor is True:
+            # Draw minor grid
+            for x in self.grid_xminor_points:
+                pdc.DrawLine(x ,y0, x, y1)
+
+            for y in self.grid_yminor_points:
+                pdc.DrawLine(x0 ,y, x1, y)
+
+        pdc.SetPen(self.pen["grid_major"])
+
+        if self.grid_show is True:
+            # Draw major grid
+            for x in self.grid_xmajor_points:
+                pdc.DrawLine(x ,y0, x, y1)
+
+            for y in self.grid_ymajor_points:
+                pdc.DrawLine(x0 ,y, x1, y)
+
+    def DrawElements(self):
+        # Draw elements on canvas
+        x0 = self.axis_bbox.GetLeft()
+        x1 = self.axis_bbox.GetRight()
+        y0 = self.axis_bbox.GetTop()
+        y1 = self.axis_bbox.GetBottom()
+        xrange = self.axis_range["xaxis"]
+        yrange = self.axis_range["yaxis"]
+        xlimits = self.axis_limits["xaxis"]
+        ylimits = self.axis_limits["yaxis"]
+        xscale = (x1-x0)/(1.0*(xrange[1] - xrange[0]))
+        yscale = -1.0*(y1-y0)/(1.0*(yrange[1] - yrange[0]))
+        scale = [xscale, yscale]
+        offset = [x0/xscale - 1.0*xrange[0], y1/yscale - 1.0*yrange[0]]
+
+        for id in self.elements:
+            # Plot elements
+            self.elements[id].OnDraw(scale, offset)
 
     def GetEasyAxisLabels(self, x0, x1, npoint):
         # Get axis labels which are easy to read

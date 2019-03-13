@@ -20,8 +20,36 @@
 import numpy as np
 import wx
 
-class PlotLine():
-    # Class to plot element on canvas
+class PlotElement(object):
+    # Base class for plot elements
+    def __init__(self, wavecanvas, xlimits, ylimits):
+        # Add to canvas
+        self.xaxis_type = "Scaler"
+        self.yaxis_type = "Scalar"
+        self.y2axis = False
+        self.wavecanvas = wavecanvas
+        self.id = self.wavecanvas.AddElement(self, xlimits, ylimits)
+        self.pdc = self.wavecanvas.GetWaveDC()
+
+    def OnDraw(self, scale, offset):
+        # Overload function to draw something on canvas
+        pass
+
+    def OnSelect(self):
+        # Overload function to do something on select
+        pass
+
+    def OnUnselect(self):
+        # Overload function to do something on unselect
+        pass
+
+    def OnDelect(self):
+        # Overload function to do something on delete
+        pass
+
+
+class PlotLine(PlotElement):
+    # Class to plot line on canvas
     def __init__(self, wavecanvas, x, y, colour="white", width=1, style=wx.PENSTYLE_SOLID):
         # Set ndarrays
         if type(x) is np.ndarray:
@@ -50,35 +78,33 @@ class PlotLine():
             raise ValueError("x and y should be same size")
 
         self.len = x_len
+        self.xlimits = [np.min(x), np.max(x)]
+        self.ylimits = [np.min(y), np.max(y)]
 
         # Add to canvas
-        self.wavecanvas = wavecanvas
-        self.id = self.wavecanvas.AddElement(self)
-        self.wavecanvas.BindDraw(self.id, self.Draw)
+        super(PlotLine, self).__init__(wavecanvas, self.xlimits, self.ylimits)
+
+        # Style
+        if not isinstance(colour, wx.Colour):
+            colour = wx.Colour(colour)
         self.colour = colour
         self.width = width
         self.style = style
 
-    def Draw(self, scale, offset, bbox=None):
+    def OnDraw(self, scale, offset):
         # Draw element
         # Set pen
-        colour = self.colour
-
-        if not isinstance(colour, wx.Colour):
-            colour = wx.Colour(colour)
-
-        pen = wx.Pen(colour, self.width, self.style)
+        pen = wx.Pen(self.colour, self.width, self.style)
 
         # Set PseudoDC
-        pdc = self.wavecanvas.GetPseudoDC()
-        pdc.RemoveId(self.id)
+        self.pdc.RemoveId(self.id)
 
-        if bbox is None:
-            # Plot all data
-            pdc.SetId(self.id)
-            pdc.SetPen(pen)
-            # Scale points
-            x = scale[0] * self.x + offset[0]
-            y = scale[1] * self.y + offset[1]
+        # Plot all data
+        self.pdc.SetId(self.id)
+        self.pdc.SetPen(pen)
 
-            pdc.DrawLines(zip(x,y))
+        # Scale points
+        x = scale[0] * (self.x + offset[0])
+        y = scale[1] * (self.y + offset[1])
+
+        self.pdc.DrawLines(zip(x,y))
