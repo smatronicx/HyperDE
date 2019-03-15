@@ -1,1 +1,7 @@
 *.pyc
+HyperDE/cmodules/**/build
+HyperDE/cmodules/**/*.pyd
+HyperDE/cmodules/**/*.so
+HyperDE/cmodules/**/*_wrap.c
+HyperDE/cmodules/**/*.py
+!HyperDE/cmodules/**/__init__.py

@@ -150,7 +150,7 @@ if False:
 
     #print n1.GetName()
 
-if True:
+if False:
 
     import HyperDE.topwindow as topwin
     import wx as wx
@@ -197,18 +197,9 @@ if True:
     #treeCtrl.DeleteAllItems()
     app.MainLoop()
 
-if False:
-    import wx
-
-    a = wx.Rect(1,2 ,5,3)
-
-    print a.GetLeft()
-    print a.GetRight()
-    print a.GetTop()
-    print a.GetBottom()
-    print a.GetBottomLeft()
-    print a.GetBottomRight()
-    print a.GetTopLeft()
-    print a.GetTopRight()
-    print a.GetWidth()
-    print a.GetHeight()
+if True:
+    import HyperDE.cmodules.wavefunc as wf
+    print wf
+    dir(wf)
+    print wf.cos_func(0)
+    print wf.cos_func("s")
