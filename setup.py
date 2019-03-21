@@ -20,24 +20,50 @@
 from setuptools import setup, Extension
 import os
 import sys
+import numpy as np
 
 # Build c modules
-c_modules = ["wavefunc"]
-cext_modules = list()
+cpp_modules = ["wavefunc"]
+cpp_ext_modules = list()
 
 script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
-c_modules_path = os.path.join(script_path, "HyperDE","cmodules")
+cpp_modules_path = os.path.join(script_path, "HyperDE","cppmodules")
+include_path = os.path.join(cpp_modules_path, "include")
 
 
-for cmod in c_modules:
-    mod_path = os.path.join(c_modules_path, cmod)
-    os.chdir(mod_path)
-    cfile = cmod
-    ext_mod = Extension("_" + cmod, sources=[cmod + ".i", cfile + ".c"])
-    cext_modules.append(ext_mod)
+for cmod in cpp_modules:
+    mod_path = os.path.join(cpp_modules_path, cmod)
+
+    src_files = list()
+    src_files.append(os.path.join(mod_path, cmod) + ".i")
+
+    for file in os.listdir(mod_path):
+        if file.endswith(".cpp") and "_wrap" not in file:
+            src_files.append(os.path.join(mod_path, file))
+
+    ext_mod = Extension("_" + cmod, sources=src_files,
+        include_dirs=[include_path, np.get_include()],
+        swig_opts=["-c++"])
+    cpp_ext_modules.append(ext_mod)
+
+# Set arguments
+setup_path = sys.argv[0]
+setup_cmd = None
+if len(sys.argv) > 1:
+    # Read setup command
+    setup_cmd = sys.argv[1]
+
+lib_path = os.path.join(script_path, "lib")
+if setup_cmd == 'clean':
+    # Clean build
+    sys.argv = [setup_path, setup_cmd, '--all', '--build-lib', lib_path]
+else:
+    # Build
+    sys.argv = [setup_path, 'build_ext', '--build-lib', lib_path]
+
 
 setup(
-    name="cmodules",
-    ext_modules=cext_modules,
-    py_modules=c_modules
+    name="cppmodules",
+    ext_modules=cpp_ext_modules,
+    py_modules=cpp_modules
 )

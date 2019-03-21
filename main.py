@@ -198,8 +198,31 @@ if False:
     app.MainLoop()
 
 if True:
-    import HyperDE.cmodules.wavefunc as wf
-    print wf
-    dir(wf)
-    print wf.cos_func(0)
-    print wf.cos_func("s")
+    import HyperDE.cppmodules.wavefunc as wf
+    import numpy as np
+    import ctypes
+
+    import importlib
+    pkg = __name__.rpartition('.')[0]
+    mname = '.'.join((pkg, '_wavefunc')).lstrip('.')
+    try:
+        _wavefunc = importlib.import_module(mname)
+    except ImportError:
+        _wavefunc = importlib.import_module('_wavefunc')
+
+    #print wf.cos_func(0)
+    #print wf.cos_func("s")
+    x=np.array([1.1, 2.2]).astype(np.double)
+    y=np.array([2.1, 3.2]).astype(np.double)
+    y0 = np.array([0.0]).astype(np.double)
+    wfc = wf.WaveFunc()
+    print wfc.FindYatX(x, y, y0, x[0], 0)
+    print y0
+    print wfc.FindXatY(x, y, y0, 3.1, 2)
+    print y0
+
+    print wfc.FindNearestIndex(x, 1.2,0)
+    print wfc.FindNearestIndex(x, 2.2,0)
+    print wfc.FindNearestIndex(x, 3.2,0)
+    print wfc.FindNearestIndex(x, 2.2,1)
+    print wfc.FindNearestIndex(x, 2.2,2)

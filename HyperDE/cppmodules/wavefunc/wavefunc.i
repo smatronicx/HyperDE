@@ -24,5 +24,17 @@ along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
   #include "wavefunc.h"
 %}
 
+/*  include the numpy typemaps */
+%include "../include/numpy.i"
+%fragment("NumPy_Fragments");
+/*  need this for correct module initialization */
+%init %{
+    import_array();
+%}
+
+%apply (double* IN_ARRAY1, int DIM1) {(double* xvec, long int xlen)};
+%apply (double* IN_ARRAY1, int DIM1) {(double* yvec, long int ylen)};
+%apply (double* IN_ARRAY1, int DIM1) {(double* outvec, long int outlen)};
+
 /* Header Files */
 %include "wavefunc.h"

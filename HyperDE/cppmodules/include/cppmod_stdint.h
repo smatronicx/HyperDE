@@ -17,4 +17,20 @@
 // along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 //
 
-double cos_func(double arg);
+// Wrapper for stdint for VisualC
+
+#ifndef CMOD_STDINT_H
+#define CMOD_STDINT_H
+
+#ifdef _MSC_VER
+
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+
+#else
+#include <stdint.h>
+#endif
+
+#endif

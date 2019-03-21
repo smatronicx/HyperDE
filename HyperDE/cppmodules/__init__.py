@@ -17,4 +17,13 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+
+# Add library path
+import os
+import sys
+script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+lib_path = os.path.join(script_path, "lib")
+sys.path.append(lib_path)
+
+# Import modules
 from .wavefunc import wavefunc
