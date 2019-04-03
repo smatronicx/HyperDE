@@ -150,7 +150,7 @@ if False:
 
     #print n1.GetName()
 
-if False:
+if True:
 
     import HyperDE.topwindow as topwin
     import wx as wx
@@ -197,7 +197,7 @@ if False:
     #treeCtrl.DeleteAllItems()
     app.MainLoop()
 
-if True:
+if False:
     import HyperDE.cppmodules.wavefunc as wf
     import numpy as np
     import ctypes

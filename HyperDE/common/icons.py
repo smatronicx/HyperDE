@@ -17,6 +17,10 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+import os
+import sys
+import wx
+
 # Import icons for use
 
 class Icons():
@@ -45,7 +49,7 @@ class Icons():
     def _CreateIconList(self):
         # Create icon list from res path
         script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
-        icon_path = os.path.join(script_path, "res", "icons")
+        icon_path = os.path.join(script_path, "HyperDE", "res", "icons")
         self.icon_list = wx.ImageList(16,16)
         self.icon_idx = dict()
         # Load all icon files

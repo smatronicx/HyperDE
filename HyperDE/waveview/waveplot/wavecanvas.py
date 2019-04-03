@@ -28,8 +28,9 @@ from . import wavecanvasgui as gui
 from ...common import helperlib
 from .wavecanvasaxis import WaveCanvasAxis as axismixin
 from .wavecanvasmouse import WaveCanvasMouse as mousemixin
+from .wavecanvaslegend import WaveCanvasLegend as legendmixin
 
-class WaveCanvas(axismixin, mousemixin, gui.TopPanel):
+class WaveCanvas(axismixin, mousemixin, legendmixin, gui.TopPanel):
     #This class provide wrapped for PseudoDC canvas from drawing
     def __init__(self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size(500, 300), style = wx.TAB_TRAVERSAL, name = wx.EmptyString):
         #Create widgets
@@ -59,6 +60,7 @@ class WaveCanvas(axismixin, mousemixin, gui.TopPanel):
 
         # Callbacks for elements
         self.elements = dict()
+        self.id_select_elements = list()
 
         # Canvases
         self.canvases = dict()
@@ -90,10 +92,11 @@ class WaveCanvas(axismixin, mousemixin, gui.TopPanel):
         # Mouse events
         self.zoom_rect = [[0, 0], [0, 0]]
         self.zoom_rect_id = wx.NewId()
+        self.zoom_plot = False
+        self.hit_radius = 5 # 5Pixel radius for selection
         self.wcanvas.Bind(wx.EVT_LEFT_DOWN, self.OnWMouseLeftDown)
         self.wcanvas.Bind(wx.EVT_MOTION, self.OnWMouseMotion)
         self.wcanvas.Bind(wx.EVT_LEFT_UP, self.OnWMouseLeftUp)
-        #self.wcanvas.Bind(wx.EVT_LEAVE_WINDOW, self.OnWMouseLeftUp)
 
         # Axes
         self.axis_limits = dict()
@@ -146,6 +149,10 @@ class WaveCanvas(axismixin, mousemixin, gui.TopPanel):
 
         self.grid_id = wx.NewId()
 
+        # Legend
+        self.signal_list.InsertColumn(0, "name")
+        self.signal_list_map = dict()
+
         # Set colour scheme
         self.SetColourScheme(black_bg = True)
 
@@ -170,13 +177,21 @@ class WaveCanvas(axismixin, mousemixin, gui.TopPanel):
         self.waveplot_splitter.SetBackgroundColour(bg)
         self.waveplot_splitter.SetForegroundColour(fg)
 
+        self.signal_list.SetBackgroundColour(bg)
+        self.signal_list.SetForegroundColour(fg)
+
         self.pen["axes"] = fgpen
         self.pen["tick"] = fgpen
 
         self.brush["bg"] = wx.Brush(bg, style=wx.SOLID)
 
-
     def OnSize(self, event):
+        # Parent size change
+        if event is not None:
+            # Pass event to children
+            #event.Skip()
+            pass
+
         # Draw elements on PseudoDC
         self.Draw()
 
@@ -250,4 +265,3 @@ class WaveCanvas(axismixin, mousemixin, gui.TopPanel):
         for id in self.elements:
             # Plot elements
             self.elements[id].OnDraw(self.axis_scale, self.axis_offset)
-            self.pdcs["wcanvas"].SetIdBounds(id, self.axis_bbox)

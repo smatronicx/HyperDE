@@ -40,7 +40,7 @@ def frexp10(x):
     if x == 0:
         return 0, 0
 
-    exp = math.floor(math.log10(x))
+    exp = math.floor(math.log10(abs(x)))
     return x/10**exp, exp
 
 def engg_unit(x, precision=3, suffix=True):

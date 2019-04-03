@@ -20,18 +20,35 @@
 import numpy as np
 import wx
 
+from ...cppmodules import wavefunc as _wavefunc
+
 class PlotElement(object):
     # Base class for plot elements
+    wavefunc = _wavefunc.WaveFunc()
     def __init__(self, wavecanvas, xlimits, ylimits):
         # Add to canvas
         self.xaxis_type = "Scaler"
         self.yaxis_type = "Scalar"
+        self.name = ""
+        self.colour = wx.Colour("white")
         self.y2axis = False
         self.wavecanvas = wavecanvas
         self.id = self.wavecanvas.AddElement(self, xlimits, ylimits)
         self.pdc = self.wavecanvas.GetWaveDC()
+        self.is_legend = False
 
-    def OnDraw(self, scale, offset):
+    def GetName(self):
+        # Get Name
+        return self.name
+
+    def AddToLegend(self, name=None):
+        # Add name to legend
+        if name is not None:
+            self.name = name
+
+        self.wavecanvas.AddToLegend(self.name, self.colour, self)
+
+    def OnDraw(self, scale, offset, redraw = False):
         # Overload function to draw something on canvas
         pass
 
@@ -43,8 +60,12 @@ class PlotElement(object):
         # Overload function to do something on unselect
         pass
 
-    def OnDelect(self):
+    def OnDelete(self):
         # Overload function to do something on delete
+        pass
+
+    def HitTest(self, x, y, r):
+        # Overload function to do hit test
         pass
 
 
@@ -87,11 +108,18 @@ class PlotLine(PlotElement):
         # Style
         if not isinstance(colour, wx.Colour):
             colour = wx.Colour(colour)
+
         self.colour = colour
         self.width = width
         self.style = style
+        self.sel_width = width+2
+        self.unsel_width = width
 
-    def OnDraw(self, scale, offset):
+        # Scaled
+        self.x_scale = self.x
+        self.y_scale = self.y
+
+    def OnDraw(self, scale, offset, redraw=False):
         # Draw element
         # Set pen
         pen = wx.Pen(self.colour, self.width, self.style)
@@ -103,8 +131,27 @@ class PlotLine(PlotElement):
         self.pdc.SetId(self.id)
         self.pdc.SetPen(pen)
 
-        # Scale points
-        x = scale[0] * (self.x + offset[0])
-        y = scale[1] * (self.y + offset[1])
+        if redraw is False:
+            # Scale points
+            self.x_scale = scale[0] * (self.x + offset[0])
+            self.y_scale = scale[1] * (self.y + offset[1])
 
-        self.pdc.DrawLines(zip(x,y))
+        self.pdc.DrawLines(zip(self.x_scale,self.y_scale))
+
+    def HitTest(self, x, y, r):
+        # Hit test with wave
+        ishit = self.wavefunc.HitTest(self.x_scale, self.y_scale, x, y, r)
+        if ishit == 1:
+            return True
+
+        return False
+
+    def OnSelect(self):
+        # Increase line width
+        self.width = self.sel_width
+        self.OnDraw(1, 0, redraw=True)
+
+    def OnUnselect(self):
+        # Reset line width
+        self.width = self.unsel_width
+        self.OnDraw(1, 0, redraw=True)

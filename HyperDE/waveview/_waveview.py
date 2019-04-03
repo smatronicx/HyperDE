@@ -21,7 +21,7 @@ import wx
 
 from . import waveviewgui as gui
 #import wave_canvas
-from . waveplot import wavecanvas as wc
+from .waveplot import wavecanvas as wc
 
 # This class implements the waveform viewer
 
@@ -96,8 +96,12 @@ class WaveView(gui.TopPanel):
 
         from .waveplot import plotelement as pe
 
-        pe.PlotLine(plot_canvas, [1, 2, 10, 20], [1, 2, 3, 400], colour="red", width=2)
-        pe.PlotLine(plot_canvas, [1, 2, 3, 10, 20, 30], [1, 4, 9, 100, 400, 900], colour="yellow", width=2)
+        l1 = pe.PlotLine(plot_canvas, [1, 2, 10, 20], [1, 2, 3, 400], colour="red", width=2)
+        l2 = pe.PlotLine(plot_canvas, [1, 2, 3, 10, 20, 30], [1, 4, 9, 100, 400, 900], colour="yellow", width=2)
+        #pe.PlotLine(plot_canvas, [1, 2, 3, 10, 20, 30], [900, 400, 100, 9, 4, 1], colour="orange", width=2)
+        #pe.PlotLine(plot_canvas, [0, 1, 2], [0, 1, 4], colour="yellow", width=2)
+        l1.AddToLegend("L1")
+
 
         #plot_canvas.enableZoom = True
         #plot_canvas.showScrollbars = False

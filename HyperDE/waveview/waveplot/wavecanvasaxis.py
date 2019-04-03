@@ -17,25 +17,6 @@
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-#
-# This file is part of HyperDE.
-# Copyright (c) 2019 by Smatronicx.
-# All Rights Reserved.
-#
-# HyperDE is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# HyperDE is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
-#
-
 
 import wx
 import wx.adv
@@ -245,6 +226,7 @@ class WaveCanvasAxis(object):
                 s = self.GetTextDisplaySize(ylabel[1], self.axis_font)
                 yl = y - s.height/2
                 pdc.DrawText(ylabel[1],xstart - self.axis_major_tick_len - 2 - s.width, yl)
+
                 label_width = max(label_width, s.width)
 
             # Hack to fix clipped labels
@@ -259,11 +241,8 @@ class WaveCanvasAxis(object):
                 yl = y - s.height/2
                 pdc.DrawText(ylabels[0][1], xstart - self.axis_major_tick_len - 2 - s.width, yl)
 
-        # Fix width
-        width = self.GetYAxisWidth(width = label_width)
-        self.canvases["ycanvas"].SetMinSize(wx.Size(width, -1))
-
         show_title = self.axis_title_show["yaxis"] and self.axis_show["yaxis"]
+        title_width = 0
         if show_title is True:
             # y axis title
             pdc = self.pdcs["ylcanvas"]
@@ -274,7 +253,12 @@ class WaveCanvasAxis(object):
             x = widthxl/2 - s.height/2
             y = heightxl/2 + s.width/2
             pdc.DrawRotatedText("ytitle", x, y, 90)
+            title_width = s.height
 
+        # Fix width
+        total_width = label_width + title_width
+        width = self.GetYAxisWidth(width = total_width)
+        self.canvases["ycanvas"].SetMinSize(wx.Size(width, -1))
 
     def DrawY2Axis(self):
         # Draw Y2 axes
@@ -344,7 +328,7 @@ class WaveCanvasAxis(object):
                 y = yscale*(ylabel[0] - y0) + yend
                 s = self.GetTextDisplaySize(ylabel[1], self.axis_font)
                 yl = y - s.height/2
-                pdc.DrawText(ylabel[1],xstart + self.axis_major_tick_len + 2, yl)
+                pdc.DrawText(ylabel[1], xstart + self.axis_major_tick_len + 2, yl)
                 label_width = max(label_width, s.width)
 
             # Hack to fix clipped labels
@@ -359,11 +343,8 @@ class WaveCanvasAxis(object):
                 yl = y - s.height/2
                 pdc.DrawText(ylabels[0][1], xstart + self.axis_major_tick_len + 2, yl)
 
-        # Fix width
-        width = self.GetYAxisWidth(width = label_width)
-        self.canvases["y2canvas"].SetMinSize(wx.Size(width, -1))
-
         show_title = self.axis_title_show["y2axis"] and self.axis_show["y2axis"]
+        title_width = 0
         if show_title is True:
             # y axis title
             pdc = self.pdcs["y2lcanvas"]
@@ -374,7 +355,12 @@ class WaveCanvasAxis(object):
             x = widthxl/2 - s.height/2
             y = heightxl/2 + s.width/2
             pdc.DrawRotatedText("y2title", x, y, 90)
+            title_width = s.height
 
+        # Fix width
+        total_width = label_width + title_width
+        width = self.GetYAxisWidth(width = total_width)
+        self.canvases["y2canvas"].SetMinSize(wx.Size(width, -1))
 
     def SetTextSize(self, size, dc):
         # Set size of text for PseudoDC
@@ -407,7 +393,7 @@ class WaveCanvasAxis(object):
         # Get hight for xcanvas
         x0 = self.axis_range["xaxis"][0]
         s = self.GetAxisLabelSize(x0)
-        s.height = s.height + self.axis_major_tick_len + 5 # 4 Pixel padding
+        s.height = s.height + self.axis_major_tick_len + 5 # 5 Pixel padding
         return s.height
 
     def GetYAxisWidth(self, y0=None, width=None):
@@ -417,7 +403,7 @@ class WaveCanvasAxis(object):
         s = self.GetAxisLabelSize(y0)
         if width is not None:
             s.width = width
-        s.width = s.width + self.axis_major_tick_len + 5 # 4 Pixel padding
+        s.width = s.width + self.axis_major_tick_len + 5 # 5 Pixel padding
         return s.width
 
     def DrawGrid(self):

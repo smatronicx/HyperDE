@@ -67,7 +67,7 @@ class TopPanel ( wx.Panel ):
 		self.wv_notebook = wx.aui.AuiNotebook( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.aui.AUI_NB_BOTTOM|wx.aui.AUI_NB_CLOSE_BUTTON|wx.aui.AUI_NB_SCROLL_BUTTONS|wx.aui.AUI_NB_TAB_MOVE )
 		self.wv_notebook.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
-		self.m_scrolledWindow1 = wx.ScrolledWindow( self.wv_notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
+		self.m_scrolledWindow1 = wx.ScrolledWindow( self.wv_notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_SIMPLE|wx.VSCROLL )
 		self.m_scrolledWindow1.SetScrollRate( 5, 5 )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 

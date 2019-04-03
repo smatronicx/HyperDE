@@ -16,3 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with HyperDE.  If not, see <https://www.gnu.org/licenses/>.
 #
+
+from ..cppmodules import wavefunc as _wavefunc
+
+class Waveform():
+    # This class holds information for waveform
+    wavefunc = _wavefunc.WaveFunc()
+    def __init__(self):
+        # Initialize
+        pass

@@ -74,6 +74,26 @@ class WaveFunc {
       double xin, long int start
     );
 
+
+    // Hit test of x,y with line within given redius
+    /*
+    Hit test of x,y with line within given redius
+    xvec: xaxis vector
+    xlen: length of xaxis vector
+    yvec: yaxis vector
+    ylen: length of yaxis vector
+    xin: Hit point x
+    yin: Hit point y
+    rin: Hit radius
+
+    return: hit result or error
+
+    */
+    int HitTest(double* xvec, long int xlen,
+      double* yvec, long int ylen,
+      double xin, double yin, double rin
+    );
+
   private:
     //Enum for errors
     enum error_code {

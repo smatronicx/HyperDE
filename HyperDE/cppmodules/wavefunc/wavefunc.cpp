@@ -18,6 +18,7 @@
 //
 
 #include <math.h>
+#include <stdio.h>
 #include "wavefunc.h"
 
 //Find first y given value of x with interpolation
@@ -107,4 +108,55 @@ int WaveFunc::FindNearestIndex(double* xvec, long int xlen,
   }
 
   return rtn;
+}
+
+// Hit test of x,y with line within given redius
+int WaveFunc::HitTest(double* xvec, long int xlen,
+  double* yvec, long int ylen,
+  double xin, double yin, double rin
+) {
+  // Check if lengths are same
+  if(xlen != ylen) {
+    return err_length_not_same;
+  }
+
+  // Find distance of xin,yin from lines
+  double rsqr = rin*rin;
+  long int i;
+  for(i = 0; i<xlen-1; i++) {
+    double x0 = xvec[i];
+    double x1 = xvec[i+1];
+    double y0 = yvec[i];
+    double y1 = yvec[i+1];
+
+    // length of segment
+    double seglen = pow(x1 - x0, 2) + pow(y1 - y0, 2);
+    double x, y, f;
+    if (seglen == 0) {
+      f = 0;
+    } else {
+      // Take dot product
+      f = (x1 - x0)*(xin - x0) + (y1 - y0)*(yin - y0);
+      // Take projection
+      f = f / seglen;
+      if (f < 0) {
+        f = 0;
+      }
+      if (f > 1) {
+        f = 1;
+      }
+    }
+
+    x = f*x1 + (1 - f)*x0;
+    y = f*y1 + (1 - f)*y0;
+
+    // Get distance from point
+    double pointdist = pow(x - xin, 2) + pow(y - yin, 2);
+    // Check for hit
+    if(pointdist <= rsqr) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
